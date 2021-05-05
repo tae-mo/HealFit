@@ -7,13 +7,23 @@
     tools:context=".TimerActivity">
 
     <TextView
-        android:id="@+id/nthSetStatus"
+        android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="세트 수를 입력하세요"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        android:paddingTop="30dp"
+        />
+
+
+    <TextView
+        android:id="@+id/timer_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="타이머를 설정해주세요"
         android:textAlignment="center"
         android:textSize="20dp"
-        android:paddingTop="@android:dimen/app_icon_size"
+        android:paddingTop="10dp"
         />
 
     <TextView
@@ -27,6 +37,7 @@
         />
 
     <Button
+        android:id="@+id/start_btn"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
@@ -37,14 +48,14 @@
         />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@android:dimen/app_icon_size"
-            android:text="세트 진행 시간"
+            android:paddingTop="20dp"
+            android:text="세트 진행 시간 (초)"
             android:textAlignment="center"
             android:textSize="20dp"
             />
@@ -87,8 +98,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@android:dimen/app_icon_size"
-            android:text="휴식 시간"
+            android:text="휴식 시간 (초)"
             android:textAlignment="center"
             android:textSize="20dp"
             />
@@ -131,22 +141,151 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@android:dimen/app_icon_size"
-            android:text="완료한 세트"
+            android:text="세트 수"
             android:textAlignment="center"
-            android:textSize="20sp"
+            android:textSize="20dp"
             />
-        <TextView
-            android:id="@+id/set_cnt"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="0"
-            android:textAlignment="center"
-            android:textSize="20sp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-            />
+            <Button
+                android:id="@+id/decrease_num"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:backgroundTint="@color/white"
+                android:onClick="control_set"
+                />
+            <TextView
+                android:id="@+id/set_num"
+                android:text="0"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_gravity="center"
+                />
 
+            <Button
+                android:id="@+id/increase_num"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:backgroundTint="@color/white"
+                android:onClick="control_set"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="15dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:gravity="top"
+                android:paddingRight="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="어떤 운동"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+
+                <EditText
+                    android:id="@+id/input_workout"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:inputType="text"
+                    android:gravity="center" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:gravity="top"
+                android:paddingLeft="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="무 게"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:id="@+id/input_weight"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+            <LinearLayout
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:paddingRight="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="완료한 세트"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+                    />
+                <TextView
+                    android:id="@+id/set_cnt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:text="0 set"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="볼 륨"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+                    />
+                <TextView
+                    android:id="@+id/vol_cnt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:text="0 kg"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+
+                    />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

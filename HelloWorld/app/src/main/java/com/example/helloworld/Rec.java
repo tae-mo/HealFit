@@ -15,6 +15,12 @@ public class Rec implements Comparable<Rec>{
         volume = 0;
         sets = 0;
     }
+    public Rec(String d, String w, Integer v, Integer s) {
+        date = d;
+        workout = w;
+        volume = v;
+        sets = s;
+    }
 
     public String getDate(){
         return this.date;
@@ -27,6 +33,19 @@ public class Rec implements Comparable<Rec>{
     }
     public Integer getSets(){
         return this.sets;
+    }
+
+    public void setDate(String nDate){
+        this.date = nDate;
+    }
+    public void setWorkout(String nWorkout){
+        this.workout = nWorkout;
+    }
+    public void setVolume(Integer nVol){
+        this.volume = nVol;
+    }
+    public void setSets(Integer nSets){
+        this.sets = nSets;
     }
 
     @Override

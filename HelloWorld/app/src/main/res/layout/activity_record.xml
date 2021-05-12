@@ -9,21 +9,42 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="500dp">
+        android:layout_height="300dp">
         <TableLayout
             android:id="@+id/rec_table"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"/>
     </ScrollView>
 
-    <Button
-        android:id="@+id/rec_btn"
-        android:layout_width="200dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:text="기록하기"
-        android:textSize="20sp"
-        android:backgroundTint="@color/black"
-        android:clickable="true"
-        />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/plan_scroll">
+            <TableLayout
+                android:id="@+id/plan_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </ScrollView>
+
+        <Button
+            android:id="@+id/add_plan"
+            android:layout_width="80dp"
+            android:layout_height="90dp"
+            android:layout_above="@id/plan_scroll"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+
+            style="@style/add_plan_style"
+            android:text="Add Plan"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:onClick="adding_plan"/>
+
+    </RelativeLayout>
 </LinearLayout>

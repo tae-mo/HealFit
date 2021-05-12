@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class TimerActivity extends AppCompatActivity {
@@ -32,12 +34,14 @@ public class TimerActivity extends AppCompatActivity {
     Gson gson;
 
     Rec Rec;
+    ArrayList<Rec> did_list;
+
     Integer weight = 0, volume = 0, count = 0;
     String workout;
 
     Handler handler;
-    Button start;
-    TextView rest_time, set_time, time, timer_status, set_num, set_cnt, vol_cnt, date;
+    Button start, stop;
+    TextView rest_time, set_time, time, timer_status, set_num, set_cnt, vol_cnt, date, did_workout;
     EditText input_workout, input_weight;
 
     int user_def_rest, user_def_set, user_def_num, cur_num;
@@ -45,7 +49,8 @@ public class TimerActivity extends AppCompatActivity {
 
     String today;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    @SuppressLint("SimpleDateFormat")
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +60,15 @@ public class TimerActivity extends AppCompatActivity {
         //SharedPreferences setting = getSharedPreferences("RecFile", MODE_PRIVATE);
         //setting.edit().clear().apply();
 
+
         gson = new GsonBuilder().create();
         Rec = new Rec();
         handler = new Handler();
+        did_list = new ArrayList<>();
 
         start = (Button)findViewById(R.id.start_btn);
+        stop = (Button)findViewById(R.id.stop_btn);
+        stop.setEnabled(false);
 
         time = (TextView)findViewById(R.id.time);
         date = (TextView)findViewById(R.id.date);
@@ -69,6 +78,7 @@ public class TimerActivity extends AppCompatActivity {
         set_cnt = (TextView)findViewById(R.id.set_cnt);
         vol_cnt = (TextView)findViewById(R.id.vol_cnt);
         timer_status = (TextView)findViewById(R.id.timer_status);
+        did_workout = (TextView)findViewById(R.id.did_workout);
 
         input_workout = (EditText)findViewById(R.id.input_workout);
         input_weight = (EditText)findViewById(R.id.input_weight);
@@ -96,7 +106,7 @@ public class TimerActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 int value = reps.getValue();
                 volume += weight * value;
-                vol_cnt.setText(volume.toString() + " kg");
+                //vol_cnt.setText(volume.toString() + " kg");
             }
         });
         AlertDialog alt = builder.create();
@@ -136,12 +146,16 @@ public class TimerActivity extends AppCompatActivity {
                 else{
                     set_timer = true;
                     cur_num++; count++;
-                    set_cnt.setText(Integer.toString(count) + " set");
                     if(cur_num == user_def_num+1){  // 사용자가 정의한 세트수 만큼 수행했다면
                         timer_status.setText("타이머를 설정해주세요");
+
                         user_def_num = 0; user_def_rest = 0; user_def_set = 0;
                         input_weight.setText(""); input_workout.setText("");
                         input_weight.setEnabled(true); input_workout.setEnabled(true);
+                        start.setEnabled(true); stop.setEnabled(false);
+
+                        save_workout();
+
                         return;
                     }
                     set_time_setter();
@@ -153,45 +167,63 @@ public class TimerActivity extends AppCompatActivity {
                     ask_reps();
                 }
             }
-
             handler.postDelayed(this, 1000);
         }
     };
 
-    public void start_pause(View view){
-        String[] hms_str = ((String)time.getText()).split(":");
-        int[] hms = {0, 0, 0};
+    public void set_info(){
 
-        for(int i = 0; i < hms_str.length; i++){
-            hms[i] = Integer.parseInt(hms_str[i]);
-        }
+    }
 
-        cur_num = 1;
-
-        if(user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0){
-            Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
-            zero_time.show();
-        }
-        else{
-            workout = input_workout.getText().toString();
-            weight = Integer.parseInt(input_weight.getText().toString());
-
-            set_time.setText("0");
-            rest_time.setText("0");
-            set_num.setText("0");
-            input_weight.setEnabled(false);
-            input_workout.setEnabled(false);
-
-            set_timer = true;
-            rest_timer = true;
-
-            set_time_setter();
-            timer_status.setText(cur_num + "번째 세트 진행중");
+    public void start(View view){
+        if(!time.getText().toString().equals("00:00:00")){
+            start.setEnabled(false);
+            stop.setEnabled(true);
 
             handler.postDelayed(runnable, 1000);
-            //start.setEnabled(false);
-        }
+        } else {
+            String[] hms_str = ((String)time.getText()).split(":");
+            int[] hms = {0, 0, 0};
 
+            for(int i = 0; i < hms_str.length; i++){
+                hms[i] = Integer.parseInt(hms_str[i]);
+            }
+
+            cur_num = 1;
+
+            if(user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0){
+                Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
+                zero_time.show();
+            }
+            else{
+                stop.setEnabled(true);
+                start.setEnabled(false);
+
+                workout = input_workout.getText().toString();
+                weight = Integer.parseInt(input_weight.getText().toString());
+
+                set_time.setText("0");
+                rest_time.setText("0");
+                set_num.setText("0");
+                input_weight.setEnabled(false);
+                input_workout.setEnabled(false);
+
+                set_timer = true;
+                rest_timer = true;
+
+                set_time_setter();
+                timer_status.setText(cur_num + "번째 세트 진행중");
+
+                handler.postDelayed(runnable, 1000);
+            }
+        }
+    }
+
+    public void pause(View view){
+        stop.setEnabled(false);
+        start.setEnabled(true);
+
+        handler.removeCallbacks(runnable);
     }
 
     private void set_time_setter(){
@@ -271,34 +303,51 @@ public class TimerActivity extends AppCompatActivity {
         super.onDestroy();
 
     }
+    @SuppressLint("SetTextI18n")
+    public void save_workout(){
+        Rec.setVolume(volume);
+        Rec.setDate(today);
+        Rec.setWorkout(workout);
+        Rec.setSets(count);
+
+        String rec_obj;
+
+        SharedPreferences sharedPreferences = getSharedPreferences("RecFile", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String exist = sharedPreferences.getString(today+workout, "");
+
+        if(exist == ""){
+            rec_obj =  gson.toJson(Rec, Rec.class);
+
+            did_workout.setText(Rec.getWorkout());
+            set_cnt.setText(Rec.getSets().toString() + " set");
+            vol_cnt.setText(Rec.getVolume().toString() + " kg");
+        }
+        else{
+            Rec prevRec = gson.fromJson(exist, Rec.class);
+
+            did_workout.setText(prevRec.getWorkout());
+            set_cnt.setText(prevRec.getSets().toString() + "+" + count + " set");
+            vol_cnt.setText(prevRec.getVolume().toString() + "+" + volume + " kg");
+
+            prevRec.sets += count;
+            prevRec.volume += volume;
+
+            rec_obj = gson.toJson(prevRec, Rec.class);
+        }
+        editor.putString(today+workout, rec_obj);
+        editor.apply();
+
+        volume = 0;
+        workout = "";
+        count = 0;
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
         if(volume != 0 && workout != "" && count != 0) {
-            Rec.volume = volume;
-            Rec.date = today;
-            Rec.workout = workout;
-            Rec.sets = count;
-
-            String rec_obj;
-
-            SharedPreferences sharedPreferences = getSharedPreferences("RecFile", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            String exist = sharedPreferences.getString(today+workout, "");
-
-            if(exist == ""){
-                rec_obj =  gson.toJson(Rec, Rec.class);
-            }
-            else{
-                Rec prevRec = gson.fromJson(exist, Rec.class);
-                prevRec.sets += count;
-                prevRec.volume += volume;
-
-                rec_obj = gson.toJson(prevRec, Rec.class);
-            }
-            editor.putString(today+workout, rec_obj);
-            editor.apply();
+            save_workout();
         }
     }
 

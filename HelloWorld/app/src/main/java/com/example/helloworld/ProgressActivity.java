@@ -13,6 +13,6 @@ public class ProgressActivity extends AppCompatActivity {
         setContentView(R.layout.activity_progress);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Progess");
+        actionBar.hide();
     }
 }

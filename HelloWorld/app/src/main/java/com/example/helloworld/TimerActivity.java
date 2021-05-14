@@ -73,7 +73,6 @@ public class TimerActivity extends AppCompatActivity {
         //timer = new TimeHandler();
 
         start = (Button)findViewById(R.id.start_btn);
-        stop = (Button)findViewById(R.id.stop_btn);
 
         time = (TextView)findViewById(R.id.time);
         date = (TextView)findViewById(R.id.date);
@@ -119,120 +118,128 @@ public class TimerActivity extends AppCompatActivity {
     }
 
 
-    public Runnable runnable =new Runnable() {
+    public Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            String[] hms_str = ((String)time.getText()).split(":");
-            int[] hms = {0, 0, 0};
+            if (status == RUN || status == INIT) {
+                String[] hms_str = ((String) time.getText()).split(":");
+                int[] hms = {0, 0, 0};
 
-            for(int i = 0; i < hms_str.length; i++) {
-                hms[i] = Integer.parseInt(hms_str[i]);
-            }
+                for (int i = 0; i < hms_str.length; i++) {//hms를 hms_str에 넣어줌
+                    hms[i] = Integer.parseInt(hms_str[i]);
+                }
 
-            int new_s = 0, new_m = 0, new_h = 0;
-            new_s = hms[2] - 1;
-            if(new_s == -1){
-                new_s = 59;
-                new_m = hms[1] - 1;
-                if(new_m == -1){
-                    new_m = 59;
-                    new_h = hms[0] - 1;
-                    if(new_h == -1){
-                        new_s = 0; new_m = 0; new_h = 0;
+                int new_s = 0, new_m = 0, new_h = 0;
+                new_s = hms[2] - 1;//초 단위
+                if (new_s == -1) { //
+                    new_s = 59;
+                    new_m = hms[1] - 1;
+                    if (new_m == -1) {
+                        new_m = 59;
+                        new_h = hms[0] - 1;
+                        if (new_h == -1) {
+                            new_s = 0;
+                            new_m = 0;
+                            new_h = 0;
+                        }
+                    }
+
+                }
+                String new_time = String.format("%02d", new_h) + ":" + String.format("%02d", new_m) + ":" + String.format("%02d", new_s);
+                time.setText(new_time);
+
+                if (new_s == 0 && new_m == 0 && new_h == 0) {
+                    handler.removeCallbacks(this);
+                    if (set_timer) set_timer = false;
+                    else {//완전 싹 다 끝났을 때
+                        set_timer = true;
+                        cur_num++;
+                        count++;
+                        set_cnt.setText(Integer.toString(count) + " set");
+                        if (cur_num == user_def_num + 1) {  // 사용자가 정의한 세트수 만큼 수행했다면
+                            status = INIT;
+                            start.setText("시작");
+                            timer_status.setText("타이머를 설정해주세요");
+                            user_def_num = 0;
+                            user_def_rest = 0;
+                            user_def_set = 0;
+                            input_weight.setText("");
+                            input_workout.setText("");
+                            input_weight.setEnabled(true);
+                            input_workout.setEnabled(true);
+                            return;
+                        }
+                        set_time_setter();
+                        timer_status.setText(cur_num + "번째 세트 진행중");
+                    }
+                    if (!set_timer) {
+                        rest_time_setter();
+                        timer_status.setText(cur_num + "번째 휴식 진행중");
+                        ask_reps();
                     }
                 }
 
+                handler.postDelayed(this, 1000);//1초에 한번씩 run()함수를 호출한다
             }
-            String new_time = String.format("%02d", new_h) + ":" + String.format("%02d", new_m) + ":" + String.format("%02d", new_s);
-            time.setText(new_time);
-
-            if(new_s == 0 && new_m == 0 && new_h == 0){
-                handler.removeCallbacks(this);
-                if(set_timer) set_timer = false;
-                else{
-                    set_timer = true;
-                    cur_num++; count++;
-                    set_cnt.setText(Integer.toString(count) + " set");
-                    if(cur_num == user_def_num+1){  // 사용자가 정의한 세트수 만큼 수행했다면
-                        timer_status.setText("타이머를 설정해주세요");
-                        user_def_num = 0; user_def_rest = 0; user_def_set = 0;
-                        input_weight.setText(""); input_workout.setText("");
-                        input_weight.setEnabled(true); input_workout.setEnabled(true);
-                        return;
-                    }
-                    set_time_setter();
-                    timer_status.setText(cur_num + "번째 세트 진행중");
-                }
-                if(!set_timer){
-                    rest_time_setter();
-                    timer_status.setText(cur_num + "번째 휴식 진행중");
-                    ask_reps();
-                }
+            else if (status == PAUSE){
+                handler.postDelayed(this, 1);
             }
-
-            handler.postDelayed(this, 1000);
         }
     };
 
     public void start_pause(View view){
-        String[] hms_str = ((String)time.getText()).split(":");
-        int[] hms = {0, 0, 0};
+        if (status == INIT) {
+            cur_num = 1;
 
-        for(int i = 0; i < hms_str.length; i++){
-            hms[i] = Integer.parseInt(hms_str[i]);
+            if (user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0) {
+                Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
+                zero_time.show();
+            } else {//타이머 준비
+                status = RUN;
+                start.setText("일시정지");
+
+                workout = input_workout.getText().toString();
+                weight = Integer.parseInt(input_weight.getText().toString());
+
+                set_time.setText("0");
+                rest_time.setText("0");
+                set_num.setText("0");
+                input_weight.setEnabled(false);
+                input_workout.setEnabled(false);
+
+                set_timer = true;
+                rest_timer = true;
+
+                set_time_setter();
+                timer_status.setText(cur_num + "번째 세트 진행중");
+
+                handler.postDelayed(runnable, 1000);//타이머 시작
+                //start.setEnabled(false);
+            }
         }
-
-
-
-
-        cur_num = 1;
-
-        if(user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0){
-            Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
-            zero_time.show();
+        else if(status == RUN) {
+            status = PAUSE;
+            start.setText("시작");
         }
-        else{
-
-            workout = input_workout.getText().toString();
-            weight = Integer.parseInt(input_weight.getText().toString());
-
-            set_time.setText("0");
-            rest_time.setText("0");
-            set_num.setText("0");
-            input_weight.setEnabled(false);
-            input_workout.setEnabled(false);
-
-            set_timer = true;
-            rest_timer = true;
-
-            set_time_setter();
-            timer_status.setText(cur_num + "번째 세트 진행중");
-
-            handler.postDelayed(runnable, 1000);
-            //start.setEnabled(false);
+        else {
+            status = RUN;
+            start.setText("일시정지");
         }
-
     }
 
     private void set_time_setter(){
-        int s = (int)(user_def_set);
-        int m = (int)(user_def_set) / 60;
-        int h = (int)(user_def_set) / 3600;
-       // int h = (int)(user_def_set / 3600);
-      //  int m = (int)((user_def_set - (3600*h)) / 60);
-       // int s = (int)((user_def_set - (60*m) - (3600*h)));
+        int h = (int)(user_def_set / 3600);
+        int m = (int)((user_def_set - (3600*h)) / 60);
+        int s = (int)((user_def_set - (60*m) - (3600*h)));
 
         String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
 
         time.setText(user_def_time);
     }
     private void rest_time_setter(){
-        int s = (int)(user_def_set);
-        int m = (int)(user_def_set) / 60;
-        int h = (int)(user_def_set) / 3600;
-        //int h = (int)(user_def_rest / 3600);
-        //int m = (int)((user_def_rest - (3600*h)) / 60);
-        //int s = (int)((user_def_rest - (60*m) - (3600*h)));
+        int h = (int)(user_def_rest / 3600);
+        int m = (int)((user_def_rest - (3600*h)) / 60);
+        int s = (int)((user_def_rest - (60*m) - (3600*h)));
 
         String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
 
@@ -340,30 +347,6 @@ public class TimerActivity extends AppCompatActivity {
         outState.putInt(SET_COUNT, count);
         super.onSaveInstanceState(outState);
     }
-   // class TimeHandler extends Handler{
-   //     @Override
-     //   public void handleMessage(@NonNull Message msg){
-    //        super.handleMessage(msg);
-     //       switch (msg.what){
-    //            case 0:
-    //                if(user_def_num == 0){
-    //                    removeMessages(0);
-   //                     break;
-     //               }
-       //             sendEmptyMessageDelayed(0, 1000);
-      //              Log.d("test", "msg.what:0 time = "+timerTime);
-       //             break;
-        //        case 1:
-         //           removeMessages(0);
-          //          Log.d("test", "msg.what:1 time = "+timerTime);
-           //         break;
-            //    case 2:
-             //       removeMessages(0);
-              //      Log.d("test", "msg.what:2 time = "+timerTime);
-               //     break;
-        //    }
-       // }
-  //  }
 
 
 

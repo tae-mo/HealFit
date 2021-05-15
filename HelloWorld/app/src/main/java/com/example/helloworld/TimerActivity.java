@@ -10,7 +10,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -40,14 +42,21 @@ public class TimerActivity extends AppCompatActivity {
     String workout;
 
     Handler handler;
-    Button start, stop;
+    Button start;
     TextView rest_time, set_time, time, timer_status, set_num, set_cnt, vol_cnt, date, did_workout;
     EditText input_workout, input_weight;
 
     int user_def_rest, user_def_set, user_def_num, cur_num;
-    boolean set_timer = true, rest_timer = true;
+    boolean set_timer = true, rest_timer = true;//타이머 상태
+
+    public static final int INIT = 0;//처음
+    public static final int RUN = 1;//실행중
+    public static final int PAUSE = 2;//일시정지
+
+    public static int status = INIT;
 
     String today;
+
 
     @SuppressLint("SimpleDateFormat")
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -60,28 +69,25 @@ public class TimerActivity extends AppCompatActivity {
         //SharedPreferences setting = getSharedPreferences("RecFile", MODE_PRIVATE);
         //setting.edit().clear().apply();
 
-
         gson = new GsonBuilder().create();
         Rec = new Rec();
         handler = new Handler();
         did_list = new ArrayList<>();
 
-        start = (Button)findViewById(R.id.start_btn);
-        stop = (Button)findViewById(R.id.stop_btn);
-        stop.setEnabled(false);
+        start = findViewById(R.id.start_btn);
 
-        time = (TextView)findViewById(R.id.time);
-        date = (TextView)findViewById(R.id.date);
-        rest_time = (TextView)findViewById(R.id.rest_time);
-        set_time = (TextView)findViewById(R.id.set_time);
-        set_num = (TextView)findViewById(R.id.set_num);
-        set_cnt = (TextView)findViewById(R.id.set_cnt);
-        vol_cnt = (TextView)findViewById(R.id.vol_cnt);
-        timer_status = (TextView)findViewById(R.id.timer_status);
-        did_workout = (TextView)findViewById(R.id.did_workout);
+        time = findViewById(R.id.time);
+        date = findViewById(R.id.date);
+        rest_time = findViewById(R.id.rest_time);
+        set_time = findViewById(R.id.set_time);
+        set_num = findViewById(R.id.set_num);
+        set_cnt = findViewById(R.id.set_cnt);
+        vol_cnt = findViewById(R.id.vol_cnt);
+        timer_status = findViewById(R.id.timer_status);
+        did_workout = findViewById(R.id.did_workout);
 
-        input_workout = (EditText)findViewById(R.id.input_workout);
-        input_weight = (EditText)findViewById(R.id.input_weight);
+        input_workout = findViewById(R.id.input_workout);
+        input_weight = findViewById(R.id.input_weight);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
@@ -90,6 +96,7 @@ public class TimerActivity extends AppCompatActivity {
         today = dateFormat.format(d);
         date.setText(today);
     }
+
 
     public void ask_reps(){
         NumberPicker reps = new NumberPicker(this);
@@ -102,102 +109,102 @@ public class TimerActivity extends AppCompatActivity {
         builder.setTitle("몇 개 수행하셨나요?");
         builder.setView(reps);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 int value = reps.getValue();
                 volume += weight * value;
-                //vol_cnt.setText(volume.toString() + " kg");
+                vol_cnt.setText(volume.toString() + " kg");
             }
         });
         AlertDialog alt = builder.create();
         alt.show();
     }
 
-    public Runnable runnable =new Runnable() {
+
+    public Runnable runnable = new Runnable() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void run() {
-            String[] hms_str = ((String)time.getText()).split(":");
-            int[] hms = {0, 0, 0};
+            if (status == RUN || status == INIT) {
+                String[] hms_str = ((String) time.getText()).split(":");
+                int[] hms = {0, 0, 0};
 
-            for(int i = 0; i < hms_str.length; i++) {
-                hms[i] = Integer.parseInt(hms_str[i]);
-            }
+                for (int i = 0; i < hms_str.length; i++) {//hms를 hms_str에 넣어줌
+                    hms[i] = Integer.parseInt(hms_str[i]);
+                }
 
-            int new_s = 0, new_m = 0, new_h = 0;
-            new_s = hms[2] - 1;
-            if(new_s == -1){
-                new_s = 59;
-                new_m = hms[1] - 1;
-                if(new_m == -1){
-                    new_m = 59;
-                    new_h = hms[0] - 1;
-                    if(new_h == -1){
-                        new_s = 0; new_m = 0; new_h = 0;
+                int new_s = 0, new_m = 0, new_h = 0;
+                new_s = hms[2] - 1;//초 단위
+                if (new_s == -1) { //
+                    new_s = 59;
+                    new_m = hms[1] - 1;
+                    if (new_m == -1) {
+                        new_m = 59;
+                        new_h = hms[0] - 1;
+                        if (new_h == -1) {
+                            new_s = 0;
+                            new_m = 0;
+                            new_h = 0;
+                        }
+                    }
+
+                }
+                @SuppressLint("DefaultLocale") String new_time = String.format("%02d", new_h) + ":" + String.format("%02d", new_m) + ":" + String.format("%02d", new_s);
+                time.setText(new_time);
+
+                if (new_s == 0 && new_m == 0 && new_h == 0) {
+                    handler.removeCallbacks(this);
+                    if (set_timer) set_timer = false;
+                    else {//완전 싹 다 끝났을 때
+                        set_timer = true;
+                        cur_num++;
+                        count++;
+                        if (cur_num == user_def_num + 1) {  // 사용자가 정의한 세트수 만큼 수행했다면
+                            status = INIT;
+                            start.setText("시작");
+
+                            timer_status.setText("타이머를 설정해주세요");
+                            user_def_num = 0;
+                            user_def_rest = 0;
+                            user_def_set = 0;
+                            input_weight.setText("");
+                            input_workout.setText("");
+                            input_weight.setEnabled(true);
+                            input_workout.setEnabled(true);
+
+                            save_workout();
+
+                            return;
+                        }
+                        set_time_setter();
+                        timer_status.setText(cur_num + "번째 세트 진행중");
+                    }
+                    if (!set_timer) {
+                        rest_time_setter();
+                        timer_status.setText(cur_num + "번째 휴식 진행중");
+                        ask_reps();
                     }
                 }
-
+                handler.postDelayed(this, 1000);//1초에 한번씩 run()함수를 호출한다
             }
-            String new_time = String.format("%02d", new_h) + ":" + String.format("%02d", new_m) + ":" + String.format("%02d", new_s);
-            time.setText(new_time);
-
-            if(new_s == 0 && new_m == 0 && new_h == 0){
-                handler.removeCallbacks(this);
-                if(set_timer) set_timer = false;
-                else{
-                    set_timer = true;
-                    cur_num++; count++;
-                    if(cur_num == user_def_num+1){  // 사용자가 정의한 세트수 만큼 수행했다면
-                        timer_status.setText("타이머를 설정해주세요");
-
-                        user_def_num = 0; user_def_rest = 0; user_def_set = 0;
-                        input_weight.setText(""); input_workout.setText("");
-                        input_weight.setEnabled(true); input_workout.setEnabled(true);
-                        start.setEnabled(true); stop.setEnabled(false);
-
-                        save_workout();
-
-                        return;
-                    }
-                    set_time_setter();
-                    timer_status.setText(cur_num + "번째 세트 진행중");
-                }
-                if(!set_timer){
-                    rest_time_setter();
-                    timer_status.setText(cur_num + "번째 휴식 진행중");
-                    ask_reps();
-                }
+            else if (status == PAUSE){
+                handler.postDelayed(this, 1);
             }
-            handler.postDelayed(this, 1000);
         }
     };
 
-    public void set_info(){
-
-    }
-
-    public void start(View view){
-        if(!time.getText().toString().equals("00:00:00")){
-            start.setEnabled(false);
-            stop.setEnabled(true);
-
-            handler.postDelayed(runnable, 1000);
-        } else {
-            String[] hms_str = ((String)time.getText()).split(":");
-            int[] hms = {0, 0, 0};
-
-            for(int i = 0; i < hms_str.length; i++){
-                hms[i] = Integer.parseInt(hms_str[i]);
-            }
-
+    @SuppressLint("SetTextI18n")
+    public void start_pause(View view){
+        if (status == INIT) {
             cur_num = 1;
 
-            if(user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0){
+            if (user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0) {
                 Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
                 zero_time.show();
-            }
-            else{
-                stop.setEnabled(true);
-                start.setEnabled(false);
+            } else {//타이머 준비
+                status = RUN;
+                start.setText("일시정지");
 
                 workout = input_workout.getText().toString();
                 weight = Integer.parseInt(input_weight.getText().toString());
@@ -214,16 +221,18 @@ public class TimerActivity extends AppCompatActivity {
                 set_time_setter();
                 timer_status.setText(cur_num + "번째 세트 진행중");
 
-                handler.postDelayed(runnable, 1000);
+                handler.postDelayed(runnable, 1000);//타이머 시작
+                //start.setEnabled(false);
             }
         }
-    }
-
-    public void pause(View view){
-        stop.setEnabled(false);
-        start.setEnabled(true);
-
-        handler.removeCallbacks(runnable);
+        else if(status == RUN) {
+            status = PAUSE;
+            start.setText("시작");
+        }
+        else {
+            status = RUN;
+            start.setText("일시정지");
+        }
     }
 
     private void set_time_setter(){
@@ -231,7 +240,7 @@ public class TimerActivity extends AppCompatActivity {
         int m = (int)((user_def_set - (3600*h)) / 60);
         int s = (int)((user_def_set - (60*m) - (3600*h)));
 
-        String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
+        @SuppressLint("DefaultLocale") String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
 
         time.setText(user_def_time);
     }
@@ -240,11 +249,12 @@ public class TimerActivity extends AppCompatActivity {
         int m = (int)((user_def_rest - (3600*h)) / 60);
         int s = (int)((user_def_rest - (60*m) - (3600*h)));
 
-        String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
+        @SuppressLint("DefaultLocale") String user_def_time = String.format("%02d", h) + ":" + String.format("%02d", m) + ":" + String.format("%02d", s);
 
         time.setText(user_def_time);
     }
 
+    @SuppressLint("NonConstantResourceId")
     public void control_time(View view){
         int cur_set_time = Integer.parseInt((String) set_time.getText());
         int cur_rest_time = Integer.parseInt((String) rest_time.getText());
@@ -279,6 +289,7 @@ public class TimerActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NonConstantResourceId")
     public void control_set(View view){
         int cur_set_num = Integer.parseInt((String) set_num.getText());
         switch(view.getId()){
@@ -303,6 +314,7 @@ public class TimerActivity extends AppCompatActivity {
         super.onDestroy();
 
     }
+
     @SuppressLint("SetTextI18n")
     public void save_workout(){
         Rec.setVolume(volume);
@@ -316,7 +328,7 @@ public class TimerActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String exist = sharedPreferences.getString(today+workout, "");
 
-        if(exist == ""){
+        if(exist.equals("")){
             rec_obj =  gson.toJson(Rec, Rec.class);
 
             did_workout.setText(Rec.getWorkout());
@@ -351,6 +363,7 @@ public class TimerActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -363,6 +376,9 @@ public class TimerActivity extends AppCompatActivity {
         outState.putInt(SET_COUNT, count);
         super.onSaveInstanceState(outState);
     }
+
+
+
 }
 
 

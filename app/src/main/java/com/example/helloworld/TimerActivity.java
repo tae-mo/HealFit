@@ -311,13 +311,20 @@ public class TimerActivity extends AppCompatActivity {
         Rec.setSets(count);
 
         String rec_obj;
+        String rec_log_obj;
 
-        SharedPreferences sharedPreferences = getSharedPreferences("RecFile", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String exist = sharedPreferences.getString(today+workout, "");
+        SharedPreferences sharedPreferencesRec = getSharedPreferences("RecFile", MODE_PRIVATE);
+        SharedPreferences sharedPreferencesRecLog = getSharedPreferences("RecLog", MODE_PRIVATE);
 
-        if(exist == ""){
+        SharedPreferences.Editor editor = sharedPreferencesRec.edit();
+        SharedPreferences.Editor logEditor = sharedPreferencesRecLog.edit();
+
+        String exist = sharedPreferencesRec.getString(today+workout, "");
+        String logExist = sharedPreferencesRecLog.getString(today+workout, "");
+
+        if(exist == "" || logExist == ""){
             rec_obj =  gson.toJson(Rec, Rec.class);
+            rec_log_obj = rec_obj;
 
             did_workout.setText(Rec.getWorkout());
             set_cnt.setText(Rec.getSets().toString() + " set");
@@ -325,18 +332,32 @@ public class TimerActivity extends AppCompatActivity {
         }
         else{
             Rec prevRec = gson.fromJson(exist, Rec.class);
+            Rec prevLogRec = gson.fromJson(logExist, Rec.class);
 
             did_workout.setText(prevRec.getWorkout());
             set_cnt.setText(prevRec.getSets().toString() + "+" + count + " set");
             vol_cnt.setText(prevRec.getVolume().toString() + "+" + volume + " kg");
 
+            did_workout.setText(prevLogRec.getWorkout());
+            set_cnt.setText(prevLogRec.getSets().toString() + "+" + count + " set");
+            vol_cnt.setText(prevLogRec.getVolume().toString() + "+" + volume + " kg");
+
             prevRec.sets += count;
             prevRec.volume += volume;
 
+            prevLogRec.sets += count;
+            prevLogRec.volume += volume;
+
             rec_obj = gson.toJson(prevRec, Rec.class);
+
+            rec_log_obj = gson.toJson(prevLogRec, Rec.class);
+
         }
+
         editor.putString(today+workout, rec_obj);
+        logEditor.putString(today+workout, rec_log_obj);
         editor.apply();
+        logEditor.apply();
 
         volume = 0;
         workout = "";

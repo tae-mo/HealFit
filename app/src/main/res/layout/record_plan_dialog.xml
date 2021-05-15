@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:text="Workout"
+            android:text="운동명"
             android:layout_gravity="center"
             android:gravity="center"
             />
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:text="Sets"
+            android:text="세트"
             android:layout_gravity="center"
             android:gravity="center"
             />
@@ -61,7 +61,7 @@
         <TextView
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:text="Weight"
+            android:text="중량"
             android:layout_gravity="center"
             android:gravity="center"
             />
@@ -87,7 +87,7 @@
         <TextView
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:text="Reps"
+            android:text="횟수"
             android:layout_gravity="center"
             android:gravity="center"
             />

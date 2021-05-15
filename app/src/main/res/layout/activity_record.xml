@@ -43,7 +43,7 @@
             android:layout_marginBottom="20dp"
 
             android:onClick="adding_plan"
-            android:text="Add Plan"
+            android:text="계획 추가"
             android:textColor="@color/white"
             android:textSize="15sp" />
 
@@ -60,7 +60,7 @@
             android:layout_marginBottom="20dp"
 
             android:onClick="get_logs"
-            android:text="Get Records"
+            android:text="내 기록"
             android:textColor="@color/white"
             android:textSize="15sp" />
 

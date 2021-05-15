@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.TelephonyNetworkSpecifier;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -35,17 +36,21 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 public class RecordActivity extends AppCompatActivity {
     Gson gson;
     ArrayList<Rec> rec_list;
     ArrayList<Rec> plan_list;
+    ArrayList<Rec> log_list;
     SharedPreferences sp;
 
     TableLayout rec_table, plan_table, log_table;
     Button add_plan;
     Button get_logs;
     LinearLayout listView;
+
+    TableRow tableRow;
 
     ArrayList<TableRow> rec_row = new ArrayList<>();
     ArrayList<TableRow> plan_row = new ArrayList<>();
@@ -121,64 +126,15 @@ public class RecordActivity extends AppCompatActivity {
         modify_list(plan_list, plan_row, plan_table);
     }
 
-    public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table){
-        if (table != null) {
-           table.removeAllViews();
-        }
-        arr_row.clear();
-
-        TableRow tr = new TableRow(this);
-        tr.setGravity(Gravity.CENTER);
-        tr.setLayoutParams(new TableRow.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        for(String s : col_format){
-            TextView text = new TextView(this);
-            text.setText(String.format("%-20s", s));
-            tr.addView(text);
-        }
-        arr_row.add(tr);
-
-        // ArrayList에 테이블값 추가
-        for(int i = 0; i < arr_list.size(); i++) {
-            tr = new TableRow(this);
-            tr.setGravity(Gravity.CENTER);
-            tr.setLayoutParams(new TableRow.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
-
-            TextView date, workout, sets, volume;
-            date = new TextView(this);
-            workout = new TextView(this);
-            sets = new TextView(this);
-            volume =  new TextView(this);
-
-            date.setText(String.format("%-20s", arr_list.get(i).getDate()));
-            workout.setText(String.format("%-20s", arr_list.get(i).getWorkout()));
-            sets.setText(String.format("%-20s", arr_list.get(i).getSets().toString() + " sets"));
-            volume.setText(String.format("%-20s", arr_list.get(i).getVolume().toString() + " kg"));
-
-            tr.addView(date);
-            tr.addView(workout);
-            tr.addView(sets);
-            tr.addView(volume);
-
-            arr_row.add(tr);
-        }
-
-        for(TableRow recorded : arr_row){
-            table.addView(recorded);
-        }
-    }
     public void adding_plan(View view){
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.record_plan_dialog, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Enter Planing Info");
+        builder.setTitle("운동 계획 추가");
         builder.setView(dialogView);
-        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 EditText edit_workout = (EditText)dialogView.findViewById(R.id.plan_workout);
@@ -229,7 +185,23 @@ public class RecordActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Your Records");
+        log_list = new ArrayList<>();
+
+        builder.setTitle("내 운동기록");
+
+        sp = getSharedPreferences("RecLog", MODE_PRIVATE);
+
+        Map<String, ?>  logsData = sp.getAll();
+
+        Set<? extends Map.Entry<String, ?>> allLogs = logsData.entrySet();
+
+        if (log_list != null) {
+            for (Map.Entry<String, ?> log : allLogs) {
+                String logValStr = log.getValue().toString();
+                Rec log_value = gson.fromJson(logValStr, Rec.class);
+                log_list.add(log_value);
+            }
+        }
 
         log_table = (TableLayout)dialogView.findViewById(R.id.log_table);
 
@@ -239,16 +211,83 @@ public class RecordActivity extends AppCompatActivity {
 
         builder.setView(dialogView);
 
-        modify_list(rec_list, log_row, log_table);
+        modify_list(log_list, log_row, log_table);
 
-//        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                log_table.removeAllViews();
-//            }
-//        });
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                log_table.removeAllViews();
+            }
+        });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table){
+        if (table != null) {
+            table.removeAllViews();
+        }
+        arr_row.clear();
+        tableRow = setTableRowLayout();
+
+        if (arr_list == log_list && ( log_list == null || log_list.size() == 0 )){
+            log_table.setGravity(Gravity.CENTER);
+            TableRow tableRow = setTableRowLayout();
+            TextView emptyMessage;
+            emptyMessage = new TextView(this);
+            emptyMessage.setText("로그 데이터가 존재하지 않습니다.");
+            tableRow.setGravity(Gravity.CENTER);
+            tableRow.addView(emptyMessage);
+            arr_row.add(tableRow);
+
+            for(TableRow recorded : arr_row) {
+                table.addView(recorded);
+            }
+            return;
+        }
+
+        for(String s : col_format){
+            TextView text = new TextView(this);
+            text.setText(String.format("%-20s", s));
+            tableRow.addView(text);
+        }
+        arr_row.add(tableRow);
+        // ArrayList에 테이블값 추가
+        for (int i = 0; i < arr_list.size(); i++) {
+            tableRow = setTableRowLayout();
+
+            TextView date, workout, sets, volume;
+            date = new TextView(this);
+            workout = new TextView(this);
+            sets = new TextView(this);
+            volume = new TextView(this);
+
+            date.setText(String.format("%-20s", arr_list.get(i).getDate()));
+            workout.setText(String.format("%-20s", arr_list.get(i).getWorkout()));
+            sets.setText(String.format("%-20s", arr_list.get(i).getSets().toString() + " sets"));
+            volume.setText(String.format("%-20s", arr_list.get(i).getVolume().toString() + " kg"));
+
+            tableRow.addView(date);
+            tableRow.addView(workout);
+            tableRow.addView(sets);
+            tableRow.addView(volume);
+
+            arr_row.add(tableRow);
+        }
+
+
+        for(TableRow recorded : arr_row){
+            table.addView(recorded);
+        }
+    }
+
+    private TableRow setTableRowLayout() {
+        tableRow = new TableRow(this);
+        tableRow.setGravity(Gravity.CENTER);
+        tableRow.setLayoutParams(new TableRow.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        return tableRow;
     }
 
     public void save_state(){

@@ -19,7 +19,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initializeRecords();
+        // 매일 특정 시간 운동 Record 데이터 삭제 스케줄러 ( 매일 자정 )
+        this.initializeRecordsSchedular();
+
     }
     public void timerClick(View view){
         Intent intent = new Intent(this, TimerActivity.class);
@@ -38,18 +40,20 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void initializeRecords() {
+    // 매일 특정 시간 운동 Record 데이터 삭제 스케줄러 ( 매일 자정 )
+    public void initializeRecordsSchedular() {
         Intent intent = new Intent(this, SchedularReceiver.class);
-        PendingIntent pIntent = PendingIntent.getBroadcast(this, 0,intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 45);
+        calendar.set(Calendar.HOUR_OF_DAY, 24);
+        calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pIntent);
 
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }
     @Override
     protected void onStart() {

@@ -16,12 +16,18 @@
         <activity android:name=".RecordActivity" />
         <activity android:name=".TimerActivity" />
         <activity android:name=".MainActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <receiver android:name=".SchedularReceiver">
+            <intent-filter>
+                <action android:name = "com.example.helloworld.START" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

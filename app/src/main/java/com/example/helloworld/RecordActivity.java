@@ -1,8 +1,13 @@
 package com.example.helloworld;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.TelephonyNetworkSpecifier;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -10,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -25,6 +31,7 @@ import com.google.gson.GsonBuilder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -35,11 +42,14 @@ public class RecordActivity extends AppCompatActivity {
     ArrayList<Rec> plan_list;
     SharedPreferences sp;
 
-    TableLayout rec_table, plan_table;
+    TableLayout rec_table, plan_table, log_table;
     Button add_plan;
+    Button get_logs;
+    LinearLayout listView;
 
     ArrayList<TableRow> rec_row = new ArrayList<>();
     ArrayList<TableRow> plan_row = new ArrayList<>();
+    ArrayList<TableRow> log_row = new ArrayList<>();
 
     ArrayList<String> col_format = new ArrayList<>(Arrays.asList("날짜", "운동", "세트", "볼륨"));
 
@@ -56,6 +66,8 @@ public class RecordActivity extends AppCompatActivity {
         actionBar.hide();
 
         add_plan = (Button)findViewById(R.id.add_plan);
+        get_logs = (Button)findViewById(R.id.get_logs);
+        listView = findViewById(R.id.listView);
 
         Date d = new Date();
         today = dateFormat.format(d);
@@ -110,7 +122,9 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table){
-        table.removeAllViews();
+        if (table != null) {
+           table.removeAllViews();
+        }
         arr_row.clear();
 
         TableRow tr = new TableRow(this);
@@ -172,20 +186,16 @@ public class RecordActivity extends AppCompatActivity {
                 EditText edit_weight = (EditText)dialogView.findViewById(R.id.plan_weight);
                 EditText edit_reps = (EditText)dialogView.findViewById(R.id.plan_reps);
 
-                if (edit_workout == null) {
-                    return;
-                }
-
                 String editWorkoutStr = edit_workout.getText().toString();
                 String editSetsStr = edit_sets.getText().toString();
                 String editWeightStr = edit_weight.getText().toString();
                 String editRepsStr = edit_reps.getText().toString();
 
                 if(isEditValExist(editWorkoutStr, editSetsStr, editWeightStr, editRepsStr)){
-                    String input_workout = edit_workout.getText().toString();
-                    Integer input_sets = Integer.parseInt(edit_sets.getText().toString());
-                    Integer input_weight = Integer.parseInt(edit_weight.getText().toString());
-                    Integer input_reps = Integer.parseInt(edit_reps.getText().toString());
+                    String input_workout = editWorkoutStr;
+                    Integer input_sets = Integer.parseInt(editSetsStr);
+                    Integer input_weight = Integer.parseInt(editWeightStr);
+                    Integer input_reps = Integer.parseInt(editRepsStr);
 
                     Rec input_rec = new Rec(today, input_workout, input_weight*input_reps*input_sets, input_sets);
 
@@ -204,11 +214,39 @@ public class RecordActivity extends AppCompatActivity {
                     modify_list(plan_list, plan_row, plan_table);
                 }
             }
-
             private boolean isEditValExist(String editWorkoutStr, String editSetsStr, String editWeightStr, String editRepsStr) {
                 return !"".equals(editWorkoutStr) && !"0".equals(editSetsStr) && !"0".equals(editWeightStr) && !"0".equals(editRepsStr);
             }
         });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+    public void get_logs(View view) {
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.record_logs, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Your Records");
+
+        log_table = (TableLayout)dialogView.findViewById(R.id.log_table);
+
+        if (dialogView.getParent() != null ){
+            ((ViewGroup) dialogView.getParent()).removeView(dialogView);
+        }
+
+        builder.setView(dialogView);
+
+        modify_list(rec_list, log_row, log_table);
+
+//        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                log_table.removeAllViews();
+//            }
+//        });
         AlertDialog dialog = builder.create();
         dialog.show();
     }

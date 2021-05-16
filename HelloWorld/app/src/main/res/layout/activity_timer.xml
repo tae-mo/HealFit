@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="타이머를 설정해주세요"
         android:textAlignment="center"
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:paddingTop="10dp"
         />
 
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:text="00:00:00"
         android:textAlignment="center"
-        android:textSize="50dp"
+        android:textSize="50sp"
         android:textStyle="bold"
         />
 
@@ -59,7 +59,7 @@
             android:paddingTop="20dp"
             android:text="세트 진행 시간 (초)"
             android:textAlignment="center"
-            android:textSize="20dp"
+            android:textSize="20sp"
             />
 
         <LinearLayout
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:text="휴식 시간 (초)"
             android:textAlignment="center"
-            android:textSize="20dp"
+            android:textSize="20sp"
             />
 
         <LinearLayout
@@ -144,7 +144,7 @@
             android:layout_height="wrap_content"
             android:text="세트 수"
             android:textAlignment="center"
-            android:textSize="20dp"
+            android:textSize="20sp"
             />
 
         <LinearLayout

@@ -33,20 +33,27 @@ public class RecordActivity extends AppCompatActivity {
     Gson gson;
     ArrayList<Rec> rec_list;
     ArrayList<Rec> plan_list;
-    SharedPreferences sp;
+    ArrayList<Rec> log_list;
+
+    SharedPreferences plan_sp, plan_cnt_sp, log_sp;
 
     TableLayout rec_table, plan_table;
-    Button add_plan;
+    Button add_plan, show_log;
+    TextView complete_cnt;
 
     ArrayList<TableRow> rec_row = new ArrayList<>();
     ArrayList<TableRow> plan_row = new ArrayList<>();
+    ArrayList<TableRow> log_row = new ArrayList<>();
 
     ArrayList<String> col_format = new ArrayList<>(Arrays.asList("날짜", "운동", "세트", "볼륨"));
+
+    int complete_plan_cnt = 0, plan_cnt = 0;
 
     private String today;
     @SuppressLint("SimpleDateFormat")
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,61 +62,114 @@ public class RecordActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        add_plan = (Button)findViewById(R.id.add_plan);
+        add_plan = findViewById(R.id.add_plan);
+        show_log = findViewById(R.id.show_log);
+        complete_cnt = findViewById(R.id.complete_cnt);
 
         Date d = new Date();
         today = dateFormat.format(d);
 
         gson = new GsonBuilder().create();
 
-        /*********************************수행한 운동 불러오기***********************************/
+        /***********************************LOG 불러오기*************************************/
+        log_list = new ArrayList<>();
+        log_sp = getSharedPreferences("RecLog", MODE_PRIVATE);
+        //log_sp.edit().clear().apply();
 
+        Map<String, ?>  totalRec = log_sp.getAll();
+        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
+            Rec day_rec = gson.fromJson(entry.getValue().toString(), Rec.class);
+            if(day_rec.getDate().equals(today)){
+                log_list.add(day_rec);
+            }
+        }
+        Collections.sort(log_list);
+
+        /*********************************수행한 운동 불러오기***********************************/
         rec_list = new ArrayList<>();
         rec_table = (TableLayout)findViewById(R.id.rec_table);
-        sp = getSharedPreferences("RecFile", MODE_PRIVATE);
+        plan_sp = getSharedPreferences("RecFile", MODE_PRIVATE);
 
-        Map<String, ?>  totalRec = sp.getAll();
+        totalRec = plan_sp.getAll();
         for(Map.Entry<String, ?> entry : totalRec.entrySet()){
             Rec day_rec = gson.fromJson(entry.getValue().toString(), Rec.class);
             rec_list.add(day_rec);
         }
         Collections.sort(rec_list);
 
-        modify_list(rec_list, rec_row, rec_table);
+        modify_list(rec_list, rec_row, rec_table, 20);
 
         /*********************************계획한 운동 불러오기***********************************/
         plan_list = new ArrayList<>();
         plan_table = (TableLayout)findViewById(R.id.plan_table);
-        sp = getSharedPreferences("RecPlan", MODE_PRIVATE);
+        plan_sp = getSharedPreferences("RecPlan", MODE_PRIVATE);
+        plan_cnt_sp = getSharedPreferences("RecPlanCnt", MODE_PRIVATE);
 
-        totalRec = sp.getAll();
-        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
-            Rec day_plan = gson.fromJson(entry.getValue().toString(), Rec.class);
-            plan_list.add(day_plan);
+        //plan_sp.edit().clear().apply();
+        //plan_cnt_sp.edit().clear().apply();
+
+        String exist = plan_cnt_sp.getString(today, "");
+        SharedPreferences.Editor editor = plan_cnt_sp.edit();
+
+        if(!exist.equals("")){
+            String[] temp = exist.split("/");
+            complete_plan_cnt = Integer.parseInt(temp[0]);
+            plan_cnt = Integer.parseInt(temp[1]);
         }
 
-        int remove_cnt = 0;
+        totalRec = plan_sp.getAll();
+        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
+            Rec day_plan = gson.fromJson(entry.getValue().toString(), Rec.class);
+            if(day_plan.getDate().equals(today)){
+                plan_list.add(day_plan);
+            }
+        }
+
+        ArrayList<Rec> remove_items = new ArrayList<>();
         for(Rec rec_item : rec_list){
             if(rec_item.getDate().equals(today)){
                 for(Rec plan_item : plan_list){
                     if(rec_item.getWorkout().equals(plan_item.getWorkout())){
                         if(rec_item.getVolume() >= plan_item.getVolume()){
-                            plan_list.remove(plan_item);
-                            remove_cnt++;
+                            remove_items.add(plan_item);
+
+                            if(!add_item(log_list, plan_item)){
+                                log_list.add(plan_item);
+                            }
+                            complete_plan_cnt++;
                         }
                     }
                 }
             }
         }
-        if(remove_cnt > 0){
-            Toast plan_removed = Toast.makeText(this.getApplicationContext(), remove_cnt+"개의 완료된 Plan이 제거됩니다.", Toast.LENGTH_SHORT);
+        for(int i = 0; i < remove_items.size(); i++){
+            plan_list.remove(remove_items.get(i));
+        }
+        if(!remove_items.isEmpty()){
+            Toast plan_removed = Toast.makeText(this.getApplicationContext(), remove_items.size() +"개의 완료된 Plan이 제거됩니다.", Toast.LENGTH_SHORT);
             plan_removed.show();
         }
+        modify_list(plan_list, plan_row, plan_table, 20);
 
-        modify_list(plan_list, plan_row, plan_table);
+        editor.putString(today, complete_plan_cnt+ "/" + plan_cnt);
+        editor.apply();
+
+        complete_cnt.setText("( " + complete_plan_cnt + " / " + plan_cnt + " )");
     }
 
-    public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table){
+    public boolean add_item(ArrayList<Rec> base, Rec compare){
+        boolean already = false;
+        for(Rec item : base){
+            if(item.getWorkout().equals(compare.getWorkout())){
+                already = true;
+                item.setSets(item.getSets() + compare.getSets());
+                item.setVolume(item.getVolume() + compare.getVolume());
+            }
+        }
+        return already;
+    }
+
+    public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table, int space){
         table.removeAllViews();
         arr_row.clear();
 
@@ -139,10 +199,10 @@ public class RecordActivity extends AppCompatActivity {
             sets = new TextView(this);
             volume =  new TextView(this);
 
-            date.setText(String.format("%-20s", arr_list.get(i).getDate()));
-            workout.setText(String.format("%-20s", arr_list.get(i).getWorkout()));
-            sets.setText(String.format("%-20s", arr_list.get(i).getSets().toString() + " sets"));
-            volume.setText(String.format("%-20s", arr_list.get(i).getVolume().toString() + " kg"));
+            date.setText(String.format("%-"+space+"s", arr_list.get(i).getDate()));
+            workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()));
+            sets.setText(String.format("%-"+space+"s", arr_list.get(i).getSets().toString() + " sets"));
+            volume.setText(String.format("%-"+space+"s", arr_list.get(i).getVolume().toString() + " kg"));
 
             tr.addView(date);
             tr.addView(workout);
@@ -156,13 +216,35 @@ public class RecordActivity extends AppCompatActivity {
             table.addView(recorded);
         }
     }
+    public void display_logs(View view){
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.log_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Workout Logs");
+        builder.setView(dialogView);
+        TableLayout log_table = dialogView.findViewById(R.id.log_table);
+        modify_list(log_list, log_row, log_table, 10);
+        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @SuppressLint("SetTextI18n")
     public void adding_plan(View view){
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.record_plan_dialog, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Enter Planing Info");
+        builder.setTitle("Enter Plan Info");
         builder.setView(dialogView);
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             @Override
@@ -180,34 +262,40 @@ public class RecordActivity extends AppCompatActivity {
 
                     Rec input_rec = new Rec(today, input_workout, input_weight*input_reps*input_sets, input_sets);
 
-                    boolean already = false;
-                    for(Rec plan_item : plan_list){
-                        if(plan_item.getWorkout().equals(input_rec.getWorkout())){
-                            already = true;
-                            if(plan_item.getVolume() < input_rec.getVolume()){
-                                plan_item.setVolume(input_rec.getVolume());
-                            }
-                        }
-                    }
-                    if(!already){
+                    if(!add_item(plan_list, input_rec)){
                         plan_list.add(input_rec);
+
+                        SharedPreferences.Editor editor = plan_cnt_sp.edit();
+                        plan_cnt++;
+                        complete_cnt.setText("( " + complete_plan_cnt + " / " + plan_cnt + " )");
+                        editor.putString(today, complete_plan_cnt+ "/" + plan_cnt);
+                        editor.apply();
                     }
-                    modify_list(plan_list, plan_row, plan_table);
+                    modify_list(plan_list, plan_row, plan_table, 20);
                 }
             }
         });
+
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     public void save_state(){
-        sp.edit().clear().apply();
-        SharedPreferences.Editor editor = sp.edit();
+        plan_sp.edit().clear().apply();
+        SharedPreferences.Editor editor_plan = plan_sp.edit();
 
         for(Rec plan_item : plan_list){
-            editor.putString(today+plan_item.getWorkout(), gson.toJson(plan_item, Rec.class));
+            editor_plan.putString(today+plan_item.getWorkout(), gson.toJson(plan_item, Rec.class));
         }
-        editor.apply();
+        editor_plan.apply();
+
+        log_sp.edit().clear().apply();
+        SharedPreferences.Editor editor_log = log_sp.edit();
+
+        for(Rec log_item : log_list){
+            editor_log.putString(today+log_item.getWorkout(), gson.toJson(log_item, Rec.class));
+        }
+        editor_log.apply();
     }
     @Override
     protected void onStop() {

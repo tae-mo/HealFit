@@ -114,6 +114,9 @@ public class TimerActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 int value = reps.getValue();
                 volume += weight * value;
+
+                did_workout.setText(workout);
+                set_cnt.setText((count+1) + " set");    // 휴식 시간에는 set가 카운팅 되기 전이기 때문에, 나타낼 떄는 1 더한값을 나타냄
                 vol_cnt.setText(volume.toString() + " kg");
             }
         });
@@ -214,6 +217,10 @@ public class TimerActivity extends AppCompatActivity {
                 set_num.setText("0");
                 input_weight.setEnabled(false);
                 input_workout.setEnabled(false);
+
+                did_workout.setText("None");
+                set_cnt.setText("0 set");
+                vol_cnt.setText("0 kg");
 
                 set_timer = true;
                 rest_timer = true;
@@ -358,7 +365,7 @@ public class TimerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(volume != 0 && workout != "" && count != 0) {
+        if(volume != 0 && !workout.equals("") && count != 0) {
             save_workout();
         }
     }

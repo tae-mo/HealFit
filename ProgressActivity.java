@@ -13,7 +13,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class ProgressActivity extends AppCompatActivity {
     TextView textView;
@@ -22,8 +30,9 @@ public class ProgressActivity extends AppCompatActivity {
     Gson gson;
     int complete_plan_cnt = 0, plan_cnt = 0;
     double today_goal;
-    ArrayList<String> rec_list;
-    //ArrayList<Rec> rec_list;
+    ArrayList <String> rec_list;
+
+
     String comment="";
     SharedPreferences temp_sp;
     TextView text1,text2,text3,text4,goal_text;
@@ -49,15 +58,33 @@ public class ProgressActivity extends AppCompatActivity {
 
         gson = new GsonBuilder().create();
         temp_sp = getSharedPreferences("RecPlanCnt",MODE_PRIVATE);
-
         Map<String, ?> totalRec = temp_sp.getAll();
         rec_list = new ArrayList<String>();
 
+        List sortedKeys=new ArrayList(totalRec.keySet());
+        Collections.sort(sortedKeys);
 
+
+        length = sortedKeys.size() -1;
+        String temp_r = sortedKeys.get(length).toString();
         for(Map.Entry<String, ?> entry : totalRec.entrySet()){
             String day_rec = entry.getValue().toString();
+            String temp_rec = entry.getKey().toString();
+            if(temp_r == temp_rec)
             rec_list.add(day_rec);
         }
+
+
+        //new TreeMap<String,?>(totalRec);
+        //정렬을 추가해야한다.
+        //키값 날짜 기준으로 정렬을 해야한다.
+        // rec_list.sort(Comparator.comparing());
+
+
+
+        //Collections.sort(rec_list);
+        //Object[] mapkey = rec_list.
+        //Arrays.sort(mapkey);
         length = rec_list.size()-1;
         String[] temp = rec_list.get(length).split("/");
         complete_plan_cnt = Integer.parseInt(temp[0]);

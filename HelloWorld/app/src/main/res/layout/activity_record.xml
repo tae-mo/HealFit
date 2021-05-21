@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/dark_blue"
     tools:context=".RecordActivity">
     <TextView
         android:layout_width="match_parent"
@@ -12,6 +13,7 @@
         android:text="수행한 운동"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/white"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
         />
@@ -21,8 +23,10 @@
         android:layout_height="250dp">
         <TableLayout
             android:id="@+id/rec_table"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+        </TableLayout>
     </ScrollView>
 
     <TextView
@@ -30,6 +34,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="계획한 운동"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         android:paddingTop="10dp"
@@ -39,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="( 0 / 0 )"
+        android:textColor="@color/white"
         android:textSize="15sp"
         android:gravity="end"
         android:layout_marginEnd="10dp"/>
@@ -52,8 +58,10 @@
             android:id="@+id/plan_scroll">
             <TableLayout
                 android:id="@+id/plan_table"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                />
         </ScrollView>
 
         <Button
@@ -66,9 +74,9 @@
             android:layout_marginEnd="100dp"
             android:layout_marginBottom="20dp"
 
-            style="@style/add_plan_style"
+            style="@style/circle_btn"
             android:text="LOGS"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/green"
             android:textSize="15sp"
             android:onClick="display_logs"
             />
@@ -83,9 +91,9 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
 
-            style="@style/add_plan_style"
+            style="@style/circle_btn"
             android:text="Add Plan"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/normal_blue"
             android:textSize="15sp"
             android:onClick="adding_plan"/>
 

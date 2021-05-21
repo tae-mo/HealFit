@@ -165,7 +165,7 @@ public class TimerActivity extends AppCompatActivity {
                         count++;
                         if (cur_num == user_def_num + 1) {  // 사용자가 정의한 세트수 만큼 수행했다면
                             status = INIT;
-                            start.setText("시작");
+                            start.setText("START");
 
                             timer_status.setText("타이머를 설정해주세요");
                             user_def_num = 0;
@@ -207,7 +207,7 @@ public class TimerActivity extends AppCompatActivity {
                 zero_time.show();
             } else {//타이머 준비
                 status = RUN;
-                start.setText("일시정지");
+                start.setText("Pause");
 
                 workout = input_workout.getText().toString();
                 weight = Integer.parseInt(input_weight.getText().toString());
@@ -234,11 +234,11 @@ public class TimerActivity extends AppCompatActivity {
         }
         else if(status == RUN) {
             status = PAUSE;
-            start.setText("시작");
+            start.setText("Resume");
         }
         else {
             status = RUN;
-            start.setText("일시정지");
+            start.setText("Pause");
         }
     }
 

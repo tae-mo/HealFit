@@ -3,6 +3,8 @@ package com.example.helloworld;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -174,12 +176,15 @@ public class RecordActivity extends AppCompatActivity {
         arr_row.clear();
 
         TableRow tr = new TableRow(this);
+        tr.setBackgroundResource(R.color.dark_blue);
         tr.setGravity(Gravity.CENTER);
         tr.setLayoutParams(new TableRow.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         for(String s : col_format){
             TextView text = new TextView(this);
+            text.setBackgroundResource(R.color.grey);
+            text.setGravity(Gravity.CENTER);
             text.setText(String.format("%-20s", s));
             tr.addView(text);
         }
@@ -198,6 +203,11 @@ public class RecordActivity extends AppCompatActivity {
             workout = new TextView(this);
             sets = new TextView(this);
             volume =  new TextView(this);
+
+            date.setBackgroundResource(R.color.white);
+            workout.setBackgroundResource(R.color.white);
+            sets.setBackgroundResource(R.color.white);
+            volume.setBackgroundResource(R.color.white);
 
             date.setText(String.format("%-"+space+"s", arr_list.get(i).getDate()));
             workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()));
@@ -225,6 +235,7 @@ public class RecordActivity extends AppCompatActivity {
         builder.setTitle("Workout Logs");
         builder.setView(dialogView);
         TableLayout log_table = dialogView.findViewById(R.id.log_table);
+        log_table.setGravity(Gravity.CENTER);
         modify_list(log_list, log_row, log_table, 10);
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             @Override

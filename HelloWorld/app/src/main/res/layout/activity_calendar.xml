@@ -4,12 +4,17 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/dark_blue"
     tools:context=".CalendarActivity">
 
     <CalendarView
         android:id="@+id/calendar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:theme="@style/CalenderViewCustom"
+        android:dateTextAppearance="@style/CalenderViewDateCustomText"
+        android:weekDayTextAppearance="@style/CalenderViewWeekCustomText"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,6 +29,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:text="날짜 : "
                 android:textSize="20sp"
                 />
@@ -33,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:text="캘린더에서 날짜를 선택하세요"
+                android:textColor="@color/white"
                 />
         </LinearLayout>
         <LinearLayout
@@ -45,6 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="체중 : "
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 />
             <TextView
@@ -53,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:text="0 kg"
+                android:textColor="@color/white"
                 />
         </LinearLayout>
         <LinearLayout
@@ -65,6 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="소모 칼로리 : "
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 />
             <TextView
@@ -72,6 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
+                android:textColor="@color/white"
                 android:text="0 kcal"
                 />
         </LinearLayout>
@@ -86,6 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="진행도 : "
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 />
             <TextView
@@ -93,15 +105,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
+                android:textColor="@color/white"
                 android:text="0 %"
                 />
         </LinearLayout>
         <Button
             android:id="@+id/enter_weight"
             android:layout_width="130dp"
-            android:layout_height="60dp"
+            android:layout_height="70dp"
             android:layout_gravity="center"
             android:text="ENTER WEIGHT"
+            android:backgroundTint="@color/green"
+            android:textSize="15sp"
+            style="@style/circle_btn"
             android:onClick="set_weight"
             />
 

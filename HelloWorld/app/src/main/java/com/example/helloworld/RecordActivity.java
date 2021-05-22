@@ -1,6 +1,7 @@
 package com.example.helloworld;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -72,8 +73,17 @@ public class RecordActivity extends AppCompatActivity {
         today = dateFormat.format(d);
 
         gson = new GsonBuilder().create();
-
         /***********************************LOG 불러오기*************************************/
+        load_log();
+
+        /*********************************수행한 운동 불러오기***********************************/
+        load_RecFile();
+
+        /*********************************계획한 운동 불러오기***********************************/
+        load_plan();
+    }
+
+    public void load_log(){
         log_list = new ArrayList<>();
         log_sp = getSharedPreferences("RecLog", MODE_PRIVATE);
         //log_sp.edit().clear().apply();
@@ -85,14 +95,24 @@ public class RecordActivity extends AppCompatActivity {
                 log_list.add(day_rec);
             }
         }
-        Collections.sort(log_list);
 
-        /*********************************수행한 운동 불러오기***********************************/
+        SharedPreferences removed_sp = getSharedPreferences("TimerRemoved", MODE_PRIVATE);
+        totalRec = removed_sp.getAll();
+        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
+            Rec day_rec = gson.fromJson(entry.getValue().toString(), Rec.class);
+            if(day_rec.getDate().equals(today)){
+                log_list.add(day_rec);
+            }
+        }
+        removed_sp.edit().clear().apply();
+        Collections.sort(log_list);
+    }
+    public void load_RecFile(){
         rec_list = new ArrayList<>();
         rec_table = (TableLayout)findViewById(R.id.rec_table);
         plan_sp = getSharedPreferences("RecFile", MODE_PRIVATE);
 
-        totalRec = plan_sp.getAll();
+        Map<String, ?>  totalRec = plan_sp.getAll();
         for(Map.Entry<String, ?> entry : totalRec.entrySet()){
             Rec day_rec = gson.fromJson(entry.getValue().toString(), Rec.class);
             rec_list.add(day_rec);
@@ -100,8 +120,8 @@ public class RecordActivity extends AppCompatActivity {
         Collections.sort(rec_list);
 
         modify_list(rec_list, rec_row, rec_table, 20);
-
-        /*********************************계획한 운동 불러오기***********************************/
+    }
+    public void load_plan(){
         plan_list = new ArrayList<>();
         plan_table = (TableLayout)findViewById(R.id.plan_table);
         plan_sp = getSharedPreferences("RecPlan", MODE_PRIVATE);
@@ -119,7 +139,7 @@ public class RecordActivity extends AppCompatActivity {
             plan_cnt = Integer.parseInt(temp[1]);
         }
 
-        totalRec = plan_sp.getAll();
+        Map<String, ?> totalRec = plan_sp.getAll();
         for(Map.Entry<String, ?> entry : totalRec.entrySet()){
             Rec day_plan = gson.fromJson(entry.getValue().toString(), Rec.class);
             if(day_plan.getDate().equals(today)){
@@ -127,30 +147,6 @@ public class RecordActivity extends AppCompatActivity {
             }
         }
 
-        ArrayList<Rec> remove_items = new ArrayList<>();
-        for(Rec rec_item : rec_list){
-            if(rec_item.getDate().equals(today)){
-                for(Rec plan_item : plan_list){
-                    if(rec_item.getWorkout().equals(plan_item.getWorkout())){
-                        if(rec_item.getVolume() >= plan_item.getVolume()){
-                            remove_items.add(plan_item);
-
-                            if(!add_item(log_list, plan_item)){
-                                log_list.add(plan_item);
-                            }
-                            complete_plan_cnt++;
-                        }
-                    }
-                }
-            }
-        }
-        for(int i = 0; i < remove_items.size(); i++){
-            plan_list.remove(remove_items.get(i));
-        }
-        if(!remove_items.isEmpty()){
-            Toast plan_removed = Toast.makeText(this.getApplicationContext(), remove_items.size() +"개의 완료된 Plan이 제거됩니다.", Toast.LENGTH_SHORT);
-            plan_removed.show();
-        }
         modify_list(plan_list, plan_row, plan_table, 20);
 
         editor.putString(today, complete_plan_cnt+ "/" + plan_cnt);
@@ -184,7 +180,7 @@ public class RecordActivity extends AppCompatActivity {
         for(String s : col_format){
             TextView text = new TextView(this);
             text.setBackgroundResource(R.color.grey);
-            text.setGravity(Gravity.CENTER);
+            text.setGravity(Gravity.CENTER);;
             text.setText(String.format("%-20s", s));
             tr.addView(text);
         }

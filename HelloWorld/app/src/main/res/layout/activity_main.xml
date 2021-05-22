@@ -36,7 +36,8 @@
             android:clickable="true"
             android:onClick="timerClick"
             style="@style/circle_btn"
-            android:text="Timer" />
+            android:text="Timer"
+            android:textSize="15sp"/>
 
         <Button
             android:id="@+id/record"
@@ -46,7 +47,8 @@
             android:clickable="true"
             android:onClick="recordClick"
             style="@style/circle_btn"
-            android:text="Record" />
+            android:text="Record"
+            android:textSize="15sp"/>
         <Button
             android:id="@+id/progress"
             android:layout_width="100dp"
@@ -55,7 +57,8 @@
             android:clickable="true"
             android:onClick="progressClick"
             style="@style/circle_btn"
-            android:text="Prog" />
+            android:text="Prog"
+            android:textSize="15sp"/>
         <Button
             android:id="@+id/calendar"
             android:layout_width="100dp"
@@ -64,6 +67,7 @@
             android:clickable="true"
             android:onClick="calClick"
             style="@style/circle_btn"
-            android:text="Cal" />
+            android:text="Cal"
+            android:textSize="15sp"/>
     </LinearLayout>
 </LinearLayout>

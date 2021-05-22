@@ -10,11 +10,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
@@ -23,8 +19,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +30,7 @@ public class TimerActivity extends AppCompatActivity {
     Gson gson;
 
     Rec Rec;
-    ArrayList<Rec> did_list;
+    ArrayList<Rec> removed_list;
 
     Integer weight = 0, volume = 0, count = 0;
     String workout;
@@ -72,7 +66,7 @@ public class TimerActivity extends AppCompatActivity {
         gson = new GsonBuilder().create();
         Rec = new Rec();
         handler = new Handler();
-        did_list = new ArrayList<>();
+        removed_list = new ArrayList<>();
 
         start = findViewById(R.id.start_btn);
 
@@ -360,13 +354,55 @@ public class TimerActivity extends AppCompatActivity {
         volume = 0;
         workout = "";
         count = 0;
+
+        check_plan(gson.fromJson(rec_obj, Rec.class));
+    }
+
+    public void check_plan(Rec Rec){
+        SharedPreferences plan_sp = getSharedPreferences("RecPlan", MODE_PRIVATE);
+
+        String exist = plan_sp.getString(today+Rec.getWorkout(), "");
+        if(!exist.equals("")){
+            Rec exist_plan = gson.fromJson(exist, Rec.class);
+            if(Rec.getVolume() >= exist_plan.getVolume()){
+                plan_sp.edit().remove(today+Rec.getWorkout()).apply();
+                removed_list.add(exist_plan);
+
+                Toast plan_removed = Toast.makeText(this.getApplicationContext(), "계획했던 " + Rec.getWorkout() + " 완료!", Toast.LENGTH_SHORT);
+                plan_removed.show();
+            }
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(volume != 0 && !workout.equals("") && count != 0) {
-            save_workout();
+
+        if(!removed_list.isEmpty()){
+            SharedPreferences removed_sp = getSharedPreferences("TimerRemoved", MODE_PRIVATE);
+            SharedPreferences.Editor editor_removed = removed_sp.edit();
+
+            for(Rec removed_item : removed_list){
+                editor_removed.putString(today+removed_item.getWorkout(), gson.toJson(removed_item, Rec.class));
+            }
+            editor_removed.apply();
+
+            SharedPreferences plan_cnt_sp = getSharedPreferences("RecPlanCnt", MODE_PRIVATE);
+            SharedPreferences.Editor editor_cnt = plan_cnt_sp.edit();
+
+            int complete_plan_cnt = 0, plan_cnt = 0;
+            String exist = plan_cnt_sp.getString(today, "");
+
+            if(!exist.equals("")){
+                String[] temp = exist.split("/");
+                complete_plan_cnt = Integer.parseInt(temp[0]);
+                plan_cnt = Integer.parseInt(temp[1]);
+
+                complete_plan_cnt += removed_list.size();
+
+                editor_cnt.putString(today, complete_plan_cnt + "/" + plan_cnt);
+                editor_cnt.apply();
+            }
         }
     }
 

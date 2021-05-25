@@ -4,26 +4,98 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/dark_blue"
     tools:context=".RecordActivity">
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="수행한 운동"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="500dp">
+        android:layout_height="250dp">
         <TableLayout
             android:id="@+id/rec_table"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+        </TableLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/rec_btn"
-        android:layout_width="200dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:text="기록하기"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="계획한 운동"
+        android:textColor="@color/white"
         android:textSize="20sp"
-        android:backgroundTint="@color/black"
-        android:clickable="true"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
         />
+    <TextView
+        android:id="@+id/complete_cnt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="( 0 / 0 )"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:gravity="end"
+        android:layout_marginEnd="10dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:id="@+id/plan_scroll">
+            <TableLayout
+                android:id="@+id/plan_table"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/show_log"
+            android:layout_width="80dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignEnd="@id/add_plan"
+            android:layout_marginEnd="100dp"
+            android:layout_marginBottom="20dp"
+
+            style="@style/circle_btn"
+            android:text="LOGS"
+            android:backgroundTint="@color/green"
+            android:textSize="15sp"
+            android:onClick="display_logs"
+            />
+
+        <Button
+            android:id="@+id/add_plan"
+            android:layout_width="80dp"
+            android:layout_height="90dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+
+            style="@style/circle_btn"
+            android:text="Add Plan"
+            android:backgroundTint="@color/normal_blue"
+            android:textSize="15sp"
+            android:onClick="adding_plan"/>
+
+    </RelativeLayout>
 </LinearLayout>

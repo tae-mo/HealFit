@@ -6,10 +6,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +30,7 @@ import java.util.Date;
 
 public class TimerActivity extends AppCompatActivity {
     static final String SET_COUNT = "SET_COUNT";
+    final Context context = this;
 
     Gson gson;
 
@@ -196,34 +201,15 @@ public class TimerActivity extends AppCompatActivity {
         if (status == INIT) {
             cur_num = 1;
 
-            if (user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0 || input_weight.getText().toString().length() == 0) {
+            if (user_def_num == 0 || user_def_rest == 0 || user_def_set == 0 || input_workout.getText().toString().length() == 0) {
                 Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
                 zero_time.show();
-            } else {//타이머 준비
-                status = RUN;
-                start.setText("Pause");
-
-                workout = input_workout.getText().toString();
-                weight = Integer.parseInt(input_weight.getText().toString());
-
-                set_time.setText("0");
-                rest_time.setText("0");
-                set_num.setText("0");
-                input_weight.setEnabled(false);
-                input_workout.setEnabled(false);
-
-                did_workout.setText("None");
-                set_cnt.setText("0 set");
-                vol_cnt.setText("0 kg");
-
-                set_timer = true;
-                rest_timer = true;
-
-                set_time_setter();
-                timer_status.setText(cur_num + "번째 세트 진행중");
-
-                handler.postDelayed(runnable, 1000);//타이머 시작
-                //start.setEnabled(false);
+            }
+            else if(input_weight.getText().toString().length() == 0){
+                ask_body_weight();
+            }
+            else {//타이머 준비
+                Init2Run();
             }
         }
         else if(status == RUN) {
@@ -234,6 +220,91 @@ public class TimerActivity extends AppCompatActivity {
             status = RUN;
             start.setText("Pause");
         }
+    }
+    private void ask_body_weight(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("무게가 입력되지 않았습니다");
+        builder.setMessage("현재 진행하는 운동이 맨몸운동 입니까?");
+
+        builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences cal_sp = getSharedPreferences("RecCal", MODE_PRIVATE);
+                String exist = cal_sp.getString(today, "");
+
+                if(!exist.equals("") && !exist.equals("0")){
+                    weight = Integer.parseInt(exist);
+                    input_weight.setText(weight.toString());
+                    Init2Run();
+                }
+                else{
+                    Toast no_bodyweight = Toast.makeText(context, "금일 체중이 입력되지 않았습니다.", Toast.LENGTH_SHORT);
+                    no_bodyweight.show();
+
+                    EditText dialog_weight = new EditText(context);
+                    dialog_weight.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    dialog_weight.setGravity(Gravity.CENTER);
+
+                    AlertDialog.Builder weight_builder = new AlertDialog.Builder(context);
+
+                    weight_builder.setTitle("오늘의 몸무게");
+                    weight_builder.setView(dialog_weight);
+                    weight_builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Editable value = dialog_weight.getText();
+                            if(!value.toString().equals("") && !value.toString().equals("0")){
+                                input_weight.setText(value.toString());
+                                cal_sp.edit().putString(today, value.toString()).apply();
+                                Init2Run();
+                            }
+                            else{
+                                Toast zero_weight = Toast.makeText(context, "체중은 0이 될 수 없습니다.", Toast.LENGTH_SHORT);
+                                zero_weight.show();
+                            }
+                        }
+                    });
+                    AlertDialog alt = weight_builder.create();
+                    alt.show();
+                }
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast zero_weight = Toast.makeText(context, "무게값을 재설정해 주세요", Toast.LENGTH_SHORT);
+                zero_weight.show();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void Init2Run(){
+        status = RUN;
+        start.setText("Pause");
+
+        workout = input_workout.getText().toString();
+        weight = Integer.parseInt(input_weight.getText().toString());
+        set_time.setText("0");
+        rest_time.setText("0");
+        set_num.setText("0");
+        input_weight.setEnabled(false);
+        input_workout.setEnabled(false);
+
+        did_workout.setText("None");
+        set_cnt.setText("0 set");
+        vol_cnt.setText("0 kg");
+
+        set_timer = true;
+        rest_timer = true;
+
+        set_time_setter();
+        timer_status.setText(cur_num + "번째 세트 진행중");
+
+        handler.postDelayed(runnable, 1000);//타이머 시작
+        //start.setEnabled(false);
     }
 
     private void set_time_setter(){
@@ -354,6 +425,7 @@ public class TimerActivity extends AppCompatActivity {
         volume = 0;
         workout = "";
         count = 0;
+        weight = 0;
 
         check_plan(gson.fromJson(rec_obj, Rec.class));
     }

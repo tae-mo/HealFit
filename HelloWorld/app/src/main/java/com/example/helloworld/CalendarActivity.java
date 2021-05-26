@@ -34,7 +34,7 @@ public class CalendarActivity extends AppCompatActivity {
     SharedPreferences cal_sp, prog_sp, kcal_sp;
 
     Integer save_weight = 0, picked_weight = 0;
-    double save_kcal = 0, save_progress = 0;
+    double save_kcal = 0;
 
 
     CalendarView calendar;
@@ -72,6 +72,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         enter_weight = findViewById(R.id.enter_weight);
 
+        calculate_progress();
+
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @SuppressLint({"DefaultLocale", "SetTextI18n"})
             @Override
@@ -94,11 +96,8 @@ public class CalendarActivity extends AppCompatActivity {
                 else{
                     enter_weight.setEnabled(true);
                     enter_weight.setText("ENTER WEIGHT");
-
-                    if(save_weight != 0){
-                        weight.setText(save_weight.toString());
-                    }
                 }
+
                 date.setText("날짜 : " + picked_date);
 
                 // Load saved body weight
@@ -123,7 +122,7 @@ public class CalendarActivity extends AppCompatActivity {
 
                 // Load saved kcal
                 exist = kcal_sp.getString(picked_date, "");
-                if(!exist.equals("") && !exist.equals("0.0")){
+                if(!exist.equals("") && !exist.equals("0.0") && !picked_date.equals(today)){
                     kcal.setText(String.format("%.1f", Double.parseDouble(exist)) + " kcal");
                 }
                 else{
@@ -140,14 +139,14 @@ public class CalendarActivity extends AppCompatActivity {
                         }
 
                         if(picked_weight == 0){ // 오늘 체중 입력 안한 경우
-                            Toast plan_removed = Toast.makeText(context, "체중값이 없으면 칼로리를 계산할 수 없습니다", Toast.LENGTH_SHORT);
-                            plan_removed.show();
+                            Toast no_weight = Toast.makeText(context, "체중값이 없으면 칼로리를 계산할 수 없습니다", Toast.LENGTH_SHORT);
+                            no_weight.show();
                         }
                         else{   // 체중 입력 돼있는 경우
                             save_kcal = calc_kcal(picked_weight, total_set);
                             kcal.setText(String.format("%.1f", save_kcal) + " kcal");
                         }
-                   }
+                    }
                     else{
                         kcal.setText("0 kcal");
                     }
@@ -202,6 +201,25 @@ public class CalendarActivity extends AppCompatActivity {
             }
         }
         kcal_sp.edit().putString(today, ((Double)save_kcal).toString()).apply();
+    }
+    public void calculate_progress(){
+        SharedPreferences plan_cnt_sp = getSharedPreferences("RecPlanCnt", MODE_PRIVATE);
+        SharedPreferences progress_sp = getSharedPreferences("RecProgress", MODE_PRIVATE);
+        String exist = plan_cnt_sp.getString(today,"");
+        if(exist.equals("")){
+            exist = "0/0";
+        }
+
+        String[] temp = exist.split("/");
+        int complete_plan_cnt = Integer.parseInt(temp[0]);
+        int plan_cnt = Integer.parseInt(temp[1]);
+        double temp_prog = 0;
+
+        if(complete_plan_cnt != 0){
+            temp_prog = ((double)complete_plan_cnt / (double)plan_cnt) * 100;
+        }
+
+        progress_sp.edit().putString(today, Double.toString(temp_prog)).apply(); // progress 저장
     }
     @Override
     protected void onStop() {

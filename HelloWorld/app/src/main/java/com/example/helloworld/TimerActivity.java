@@ -6,11 +6,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.text.Editable;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,12 +26,11 @@ import com.google.gson.GsonBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class TimerActivity extends AppCompatActivity {
     static final String SET_COUNT = "SET_COUNT";
+    final Context context = this;
 
     Gson gson;
 
@@ -203,59 +205,10 @@ public class TimerActivity extends AppCompatActivity {
                 Toast zero_time = Toast.makeText(this.getApplicationContext(), "설정값들을 모두 설정해 주세요", Toast.LENGTH_SHORT);
                 zero_time.show();
             }
-            // 볼륨이 0 또는 미입력 일때 맨몸운동인지 판별
-            else if (input_weight.getText().toString().length() == 0 || Integer.parseInt(input_weight.getText().toString()) == 0) {
-                AlertDialog.Builder body_builder = new AlertDialog.Builder(this);
-
-                body_builder.setTitle("맨몸 운동 확인").setMessage("현재 진행하는 운동이 맨몸운동 입니까?");
-                body_builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        input_weight.setText("0");
-                        SharedPreferences cal_sp = getSharedPreferences("RecCal", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = cal_sp.edit();
-
-                        // 어제 날짜
-                        Calendar cal = new GregorianCalendar();
-                        cal.add(Calendar.DATE, -1);
-                        Date yesterday_d = cal.getTime();
-                        String yesterday = dateFormat.format(yesterday_d);
-
-                        // 어제 체중 가져오기
-                        String cur_weight = cal_sp.getString(yesterday, "");
-
-                        // 어제 체중이 없을 경우, 있을 경우
-                        int body_weight;
-                        if (cur_weight == "" || Integer.parseInt(cur_weight) <= 0) {
-                            body_weight = 0;
-                        } else {
-                            body_weight = Integer.parseInt(cur_weight);
-                        }
-
-                        // 어제 체중이 없을 경우 입력, 있을 경우 오늘 체중에 입력 후 실행행
-                        if (body_weight == 0) {
-                            insert_weight(editor);
-                        } else {
-                            editor.putString(today, String.valueOf(body_weight));
-                            editor.apply();
-                            Init2Run();
-                        }
-                    }
-                });
-                body_builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 무게를 입력하라고 Toast 띄우기
-                        Toast zero_weight = Toast.makeText(TimerActivity.this, "무게값을 재설정해 주세요", Toast.LENGTH_SHORT);
-                        zero_weight.show();
-                    }
-                });
-
-                AlertDialog alt = body_builder.create();
-                alt.show();
-            } else {//타이머 준비
+            else if(input_weight.getText().toString().length() == 0){
+                ask_body_weight();
+            }
+            else {//타이머 준비
                 Init2Run();
             }
         }
@@ -268,14 +221,72 @@ public class TimerActivity extends AppCompatActivity {
             start.setText("Pause");
         }
     }
+    private void ask_body_weight(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("무게가 입력되지 않았습니다");
+        builder.setMessage("현재 진행하는 운동이 맨몸운동 입니까?");
 
+        builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences cal_sp = getSharedPreferences("RecCal", MODE_PRIVATE);
+                String exist = cal_sp.getString(today, "");
+
+                if(!exist.equals("") && !exist.equals("0")){
+                    weight = Integer.parseInt(exist);
+                    input_weight.setText(weight.toString());
+                    Init2Run();
+                }
+                else{
+                    Toast no_bodyweight = Toast.makeText(context, "금일 체중이 입력되지 않았습니다.", Toast.LENGTH_SHORT);
+                    no_bodyweight.show();
+
+                    EditText dialog_weight = new EditText(context);
+                    dialog_weight.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    dialog_weight.setGravity(Gravity.CENTER);
+
+                    AlertDialog.Builder weight_builder = new AlertDialog.Builder(context);
+
+                    weight_builder.setTitle("오늘의 몸무게");
+                    weight_builder.setView(dialog_weight);
+                    weight_builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Editable value = dialog_weight.getText();
+                            if(!value.toString().equals("") && !value.toString().equals("0")){
+                                input_weight.setText(value.toString());
+                                cal_sp.edit().putString(today, value.toString()).apply();
+                                Init2Run();
+                            }
+                            else{
+                                Toast zero_weight = Toast.makeText(context, "체중은 0이 될 수 없습니다.", Toast.LENGTH_SHORT);
+                                zero_weight.show();
+                            }
+                        }
+                    });
+                    AlertDialog alt = weight_builder.create();
+                    alt.show();
+                }
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast zero_weight = Toast.makeText(context, "무게값을 재설정해 주세요", Toast.LENGTH_SHORT);
+                zero_weight.show();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     private void Init2Run(){
         status = RUN;
         start.setText("Pause");
 
         workout = input_workout.getText().toString();
         weight = Integer.parseInt(input_weight.getText().toString());
-
         set_time.setText("0");
         rest_time.setText("0");
         set_num.setText("0");
@@ -294,31 +305,6 @@ public class TimerActivity extends AppCompatActivity {
 
         handler.postDelayed(runnable, 1000);//타이머 시작
         //start.setEnabled(false);
-    }
-
-    private void insert_weight(SharedPreferences.Editor editor){
-        AlertDialog.Builder alert = new AlertDialog.Builder(TimerActivity.this);
-
-        alert.setTitle("체중 입력").setMessage("현재 체중을 입력해주세요");
-
-        final EditText weight_et = new EditText(TimerActivity.this);
-        alert.setView(weight_et);
-
-        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                if (weight_et.getText().toString().length() == 0) {
-                    dialog.cancel();
-                    insert_weight(editor);
-                } else {
-                    editor.putString(today, weight_et.getText().toString());
-                    editor.apply();
-                    Init2Run();
-                }
-            }
-        });
-
-        AlertDialog alt_w = alert.create();
-        alt_w.show();
     }
 
     private void set_time_setter(){
@@ -439,6 +425,7 @@ public class TimerActivity extends AppCompatActivity {
         volume = 0;
         workout = "";
         count = 0;
+        weight = 0;
 
         check_plan(gson.fromJson(rec_obj, Rec.class));
     }
@@ -504,4 +491,5 @@ public class TimerActivity extends AppCompatActivity {
         outState.putInt(SET_COUNT, count);
         super.onSaveInstanceState(outState);
     }
+
 }

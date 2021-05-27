@@ -23,7 +23,7 @@
         android:layout_height="250dp">
         <TableLayout
             android:id="@+id/rec_table"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal">
         </TableLayout>
@@ -58,7 +58,7 @@
             android:id="@+id/plan_scroll">
             <TableLayout
                 android:id="@+id/plan_table"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 />

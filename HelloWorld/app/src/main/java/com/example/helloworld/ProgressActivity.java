@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.healfit;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -170,38 +170,3 @@ public class ProgressActivity extends AppCompatActivity {
         super.onStop();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

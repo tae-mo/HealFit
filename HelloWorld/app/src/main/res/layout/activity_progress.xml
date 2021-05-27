@@ -18,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
+        android:id="@+id/mountain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/mountain"
@@ -34,11 +35,10 @@
         android:layout_height="100dp"
         android:src="@drawable/star"
 
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/mountain"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="300dp"
+        android:layout_marginBottom="10dp"
         />
 
     <LinearLayout
@@ -48,9 +48,9 @@
         android:orientation="vertical"
         android:gravity="center"
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="@id/mountain"
+        app:layout_constraintStart_toStartOf="@id/mountain"
+        android:layout_marginBottom="80dp"
         android:layout_marginStart="40dp">
 
         <TextView
@@ -74,9 +74,9 @@
         android:orientation="vertical"
         android:gravity="center"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="200dp"
+        app:layout_constraintEnd_toEndOf="@id/mountain"
+        app:layout_constraintBottom_toBottomOf="@id/mountain"
+        android:layout_marginBottom="250dp"
         android:layout_marginEnd="40dp"
         >
 
@@ -101,9 +101,9 @@
         android:orientation="vertical"
         android:gravity="center"
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="260dp"
+        app:layout_constraintBottom_toBottomOf="@id/mountain"
+        app:layout_constraintStart_toStartOf="@id/mountain"
+        android:layout_marginBottom="310dp"
         android:layout_marginStart="60dp">
 
         <TextView
@@ -128,9 +128,9 @@
         android:orientation="vertical"
         android:gravity="center"
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="360dp"
+        app:layout_constraintBottom_toBottomOf="@id/mountain"
+        app:layout_constraintStart_toStartOf="@id/mountain"
+        android:layout_marginBottom="420dp"
         android:layout_marginStart="180dp">
 
         <TextView
@@ -155,11 +155,10 @@
         android:layout_height="100dp"
         android:src="@drawable/shine_star"
 
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/mountain"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="300dp"
+        android:layout_marginBottom="10dp"
         />
 
     <LinearLayout
@@ -192,178 +191,3 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-<!--
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dark_blue"
-
-    tools:context=".ProgressActivity">
-
-    <ImageView
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:src="@drawable/logo"
-        android:alpha="0.3"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-
-        />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="101dp"
-        android:layout_height="98dp"
-        android:layout_marginStart="148dp"
-        android:layout_marginTop="152dp"
-        android:contentDescription="TODO"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/star" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/mountain" />
-
-    <ImageView
-        android:id="@+id/Level1_char"
-        android:layout_width="71dp"
-        android:layout_height="96dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="564dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level1" />
-
-    <TextView
-        android:id="@+id/Level1_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="544dp"
-        android:text="하이"
-        android:textColor="@color/yellow"
-        app:layout_constraintStart_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageView10"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/information" />
-
-    <TextView
-        android:id="@+id/Level2_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="108dp"
-        android:layout_marginTop="376dp"
-        android:text=""
-        android:textColor="@color/yellow"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/Level3_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="184dp"
-        android:layout_marginTop="292dp"
-        android:text=""
-        android:textColor="@color/yellow"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/Level4_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="260dp"
-        android:layout_marginTop="228dp"
-        android:text=""
-        android:textColor="@color/yellow"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/Level2_char"
-        android:layout_width="72dp"
-        android:layout_height="91dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="504dp"
-        app:layout_constraintStart_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level2" />
-
-    <ImageView
-        android:id="@+id/Level3_char"
-        android:layout_width="65dp"
-        android:layout_height="79dp"
-        android:layout_marginStart="172dp"
-        android:layout_marginTop="324dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level3" />
-
-    <ImageView
-        android:id="@+id/Level4_char"
-        android:layout_width="58dp"
-        android:layout_height="71dp"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="256dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level4" />
-
-    <TextView
-        android:id="@+id/goal_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="80dp"
-        android:text=""
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="260dp"
-        android:layout_marginTop="40dp"
-        android:text="모은별의 개수:"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/star_cnt"
-        android:layout_width="35dp"
-        android:layout_height="18dp"
-        android:layout_marginStart="360dp"
-        android:layout_marginTop="40dp"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
--->

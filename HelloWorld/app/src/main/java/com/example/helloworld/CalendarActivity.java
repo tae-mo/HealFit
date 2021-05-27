@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.healfit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -121,38 +121,43 @@ public class CalendarActivity extends AppCompatActivity {
                 }
 
                 // Load saved kcal
-                exist = kcal_sp.getString(picked_date, "");
-                if(!exist.equals("") && !exist.equals("0.0") && !picked_date.equals(today)){
-                    kcal.setText(String.format("%.1f", Double.parseDouble(exist)) + " kcal");
-                }
-                else{
-                    if(picked_date.equals(today)){ // 없는데 오늘이다? --> 계산 해야됨
-                        int total_set = 0;
-                        SharedPreferences rec_sp = getSharedPreferences("RecFile", MODE_PRIVATE);
-
-                        Map<String, ?> totalRec = rec_sp.getAll();
-                        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
-                            Rec rec = gson.fromJson(entry.getValue().toString(), Rec.class);
-                            if(rec.getDate().equals(today)){
-                                total_set += rec.getSets();
-                            }
-                        }
-
-                        if(picked_weight == 0){ // 오늘 체중 입력 안한 경우
-                            Toast no_weight = Toast.makeText(context, "체중값이 없으면 칼로리를 계산할 수 없습니다", Toast.LENGTH_SHORT);
-                            no_weight.show();
-                        }
-                        else{   // 체중 입력 돼있는 경우
-                            save_kcal = calc_kcal(picked_weight, total_set);
-                            kcal.setText(String.format("%.1f", save_kcal) + " kcal");
-                        }
-                    }
-                    else{
-                        kcal.setText("0 kcal");
-                    }
-                }
+                load_kcal(picked_weight);
             }
         });
+    }
+
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
+    public void load_kcal(Integer send_weight){
+        String exist = kcal_sp.getString(picked_date, "");
+        if(!exist.equals("") && !exist.equals("0.0") && !picked_date.equals(today)){
+            kcal.setText(String.format("%.1f", Double.parseDouble(exist)) + " kcal");
+        }
+        else{
+            if(picked_date.equals(today)){ // 없는데 오늘이다? --> 계산 해야됨
+                int total_set = 0;
+                SharedPreferences rec_sp = getSharedPreferences("RecFile", MODE_PRIVATE);
+
+                Map<String, ?> totalRec = rec_sp.getAll();
+                for(Map.Entry<String, ?> entry : totalRec.entrySet()){
+                    Rec rec = gson.fromJson(entry.getValue().toString(), Rec.class);
+                    if(rec.getDate().equals(today)){
+                        total_set += rec.getSets();
+                    }
+                }
+
+                if(send_weight == 0){ // 오늘 체중 입력 안한 경우
+                    Toast no_weight = Toast.makeText(context, "체중값이 없으면 칼로리를 계산할 수 없습니다", Toast.LENGTH_SHORT);
+                    no_weight.show();
+                }
+                else{   // 체중 입력 돼있는 경우
+                    save_kcal = calc_kcal(send_weight, total_set);
+                    kcal.setText(String.format("%.1f", save_kcal) + " kcal");
+                }
+            }
+            else{
+                kcal.setText("0 kcal");
+            }
+        }
     }
     private double calc_kcal(int weight, int sets){
         int METs = 6;
@@ -177,6 +182,7 @@ public class CalendarActivity extends AppCompatActivity {
                     save_weight = Integer.parseInt(value.toString());
                     weight.setText(save_weight + " kg");
                     weight_saver();
+                    load_kcal(save_weight);
                 }
             }
         });
@@ -228,72 +234,3 @@ public class CalendarActivity extends AppCompatActivity {
         kcal_saver();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

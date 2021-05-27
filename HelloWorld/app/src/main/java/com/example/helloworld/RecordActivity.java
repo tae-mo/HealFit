@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.healfit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -205,10 +205,10 @@ public class RecordActivity extends AppCompatActivity {
             sets.setBackgroundResource(R.color.white);
             volume.setBackgroundResource(R.color.white);
 
-            date.setText(String.format("%-"+space+"s", arr_list.get(i).getDate()));
-            workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()));
-            sets.setText(String.format("%-"+space+"s", arr_list.get(i).getSets().toString() + " sets"));
-            volume.setText(String.format("%-"+space+"s", arr_list.get(i).getVolume().toString() + " kg"));
+            date.setText(String.format("%-15s", arr_list.get(i).getDate()));
+            workout.setText(String.format("%-15s", arr_list.get(i).getWorkout()));
+            sets.setText(String.format("%-15s", arr_list.get(i).getSets().toString() + " sets"));
+            volume.setText(String.format("%-15s", arr_list.get(i).getVolume().toString() + " kg"));
 
             tr.addView(date);
             tr.addView(workout);
@@ -232,7 +232,7 @@ public class RecordActivity extends AppCompatActivity {
         builder.setView(dialogView);
         TableLayout log_table = dialogView.findViewById(R.id.log_table);
         log_table.setGravity(Gravity.CENTER);
-        modify_list(log_list, log_row, log_table, 10);
+        modify_list(log_list, log_row, log_table, 8);
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -311,59 +311,3 @@ public class RecordActivity extends AppCompatActivity {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

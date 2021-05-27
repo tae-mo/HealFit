@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.healfit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -150,7 +150,6 @@ public class TimerActivity extends AppCompatActivity {
                             new_h = 0;
                         }
                     }
-
                 }
                 @SuppressLint("DefaultLocale") String new_time = String.format("%02d", new_h) + ":" + String.format("%02d", new_m) + ":" + String.format("%02d", new_s);
                 time.setText(new_time);
@@ -491,64 +490,4 @@ public class TimerActivity extends AppCompatActivity {
         outState.putInt(SET_COUNT, count);
         super.onSaveInstanceState(outState);
     }
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

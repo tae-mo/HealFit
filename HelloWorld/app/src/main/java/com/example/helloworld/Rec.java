@@ -1,6 +1,4 @@
-package com.example.helloworld;
-
-import java.util.ArrayList;
+package com.example.healfit;
 
 public class Rec implements Comparable<Rec>{
     String date;

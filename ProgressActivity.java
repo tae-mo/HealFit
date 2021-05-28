@@ -3,170 +3,179 @@ package com.example.helloworld;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.example.helloworld.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.Date;
 
 public class ProgressActivity extends AppCompatActivity {
-    TextView textView;
     Integer star = 0;
-    Integer length = 0;
-    Gson gson;
+
     int complete_plan_cnt = 0, plan_cnt = 0;
-    double today_goal;
-    ArrayList <String> rec_list;
+    double progress = 0;
+    String[] nickname = {"헬린이", "헬스 보이/걸", "몸짱"};
+    String[] msg = {"시작이 반입니다!", "열심히 하고 계시군요!", "절반정도 왔어요!", "좀만 더 힘내세요!", "목표 달성!"};
 
+    SharedPreferences plan_cnt_sp, progress_sp, star_sp, modified;
 
-    String comment="";
-    SharedPreferences temp_sp;
-    TextView text1,text2,text3,text4,goal_text;
-    ImageView Level_1,Level_2,Level_3,Level_4;
+    TextView message, star_cnt;
+    LinearLayout level1, level2, level3, level4;
+    ArrayList<LinearLayout> turtle_list;
+    ImageView normal_star, shine_star;
 
+    private String today;
+    @SuppressLint("SimpleDateFormat")
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_progress);
 
-        Level_1 = (ImageView)findViewById(R.id.Level1_char);
-        Level_2 = (ImageView)findViewById(R.id.Level2_char);
-        Level_3 = (ImageView)findViewById(R.id.Level3_char);
-        Level_4 = (ImageView)findViewById(R.id.Level4_char);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
-        text1 = (TextView)findViewById(R.id.Level1_text);
-        text2 = (TextView)findViewById(R.id.Level2_text);
-        text3 = (TextView)findViewById(R.id.Level3_text);
-        text4 = (TextView)findViewById(R.id.Level4_text);
-        goal_text = (TextView)findViewById(R.id.goal_text);
+        Date d = new Date();
+        today = dateFormat.format(d);
+
+        message = findViewById(R.id.message);
+        star_cnt = findViewById(R.id.star_cnt);
+
+        level1 = findViewById(R.id.level1);
+        level2 = findViewById(R.id.level2);
+        level3 = findViewById(R.id.level3);
+        level4 = findViewById(R.id.level4);
+
+        turtle_list = new ArrayList<>();
+        turtle_list.add(level1);
+        turtle_list.add(level2);
+        turtle_list.add(level3);
+        turtle_list.add(level4);
+
+        level1.setVisibility(View.INVISIBLE);
+        level2.setVisibility(View.INVISIBLE);
+        level3.setVisibility(View.INVISIBLE);
+        level4.setVisibility(View.INVISIBLE);
+
+        normal_star = findViewById(R.id.normal_star);
+        shine_star = findViewById(R.id.shine_star);
+        shine_star.setVisibility(View.INVISIBLE);
+
         //여기서 부터 shared를 짤 계획
+        plan_cnt_sp = getSharedPreferences("RecPlanCnt",MODE_PRIVATE);
+        progress_sp = getSharedPreferences("RecProgress", MODE_PRIVATE);
+        star_sp = getSharedPreferences("RecStar",MODE_PRIVATE);
+        modified = getSharedPreferences("Modified", MODE_PRIVATE);
 
-        gson = new GsonBuilder().create();
-        temp_sp = getSharedPreferences("RecPlanCnt",MODE_PRIVATE);
-        Map<String, ?> totalRec = temp_sp.getAll();
-        rec_list = new ArrayList<String>();
+        calculate_progress();   // progress 계산 & 저장
+        get_star();
 
-        List sortedKeys=new ArrayList(totalRec.keySet());
-        Collections.sort(sortedKeys);
+        set_message();
+        set_nickname();
 
+        star_cnt.setText("모은 별의 개수 : " + star+ " 개");
+    }
+    public void set_nickname(){
+        //star 처리 부분
+        for(LinearLayout layout : turtle_list){
+            TextView name = (TextView)layout.getChildAt(0);
 
-        length = sortedKeys.size() -1;
-        String temp_r = sortedKeys.get(length).toString();
-        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
-            String day_rec = entry.getValue().toString();
-            String temp_rec = entry.getKey().toString();
-            if(temp_r == temp_rec)
-            rec_list.add(day_rec);
+            if(star >= 0 && star < 11){
+                name.setText(nickname[0]);
+            }
+            else if(star >= 11 && star < 31){
+                name.setText(nickname[1]);
+            }
+            else{
+                name.setText(nickname[2]);
+            }
+        }
+    }
+
+    public void set_message(){
+        boolean already = modified.getBoolean(today, false);
+        //character 부분
+        if(progress < 100 && already){
+            star--;
+            star_sp.edit().putString("user", star.toString()).apply();
+            modified.edit().putBoolean(today, false).apply();
         }
 
+        if(progress >= 0 && progress < 25)
+        {
+            turtle_list.get(0).setVisibility(View.VISIBLE);
+            message.setText(msg[0]);
 
-        //new TreeMap<String,?>(totalRec);
-        //정렬을 추가해야한다.
-        //키값 날짜 기준으로 정렬을 해야한다.
-        // rec_list.sort(Comparator.comparing());
+        }
+        else if(progress >= 25 && progress < 50)
+        {
+            turtle_list.get(1).setVisibility(View.VISIBLE);
+            message.setText(msg[1]);
+        }
+        else if(progress >= 50 && progress < 75)
+        {
+            turtle_list.get(2).setVisibility(View.VISIBLE);
+            message.setText(msg[2]);
+        }
+        else if(progress >= 75 && progress < 100)
+        {
+            turtle_list.get(3).setVisibility(View.VISIBLE);
+            message.setText(msg[3]);
+        }
+        else if(progress >= 100)
+        {
+            if(!already) {
+                star++;
+                star_sp.edit().putString("user", star.toString()).apply();
+                modified.edit().putBoolean(today, true).apply();
+            }
+            message.setText(msg[4]);
+            shine_star.setVisibility(View.VISIBLE);
+        }
+    }
 
+    public void calculate_progress(){
+        String exist = plan_cnt_sp.getString(today,"");
+        if(exist.equals("")){
+            exist = "0/0";
+        }
 
-
-        //Collections.sort(rec_list);
-        //Object[] mapkey = rec_list.
-        //Arrays.sort(mapkey);
-        length = rec_list.size()-1;
-        String[] temp = rec_list.get(length).split("/");
+        String[] temp = exist.split("/");
         complete_plan_cnt = Integer.parseInt(temp[0]);
         plan_cnt = Integer.parseInt(temp[1]);
-        if(plan_cnt == 0)
-            today_goal = 0;
-        else today_goal = ((double)complete_plan_cnt / (double)plan_cnt) * 100;
-        //today_goal = rec_list.get(0).getProgression_state();
 
-
-        //새롭게 짜야한다.
-        /*
-        gson = new GsonBuilder().create();
-        temp_sp = getSharedPreferences("RecPlanCnt", MODE_PRIVATE);
-        Map<String, ?> totalRec = temp_sp.getAll();
-
-        for(Map.Entry<String, ?> entry : totalRec.entrySet()){
-            String day_rec = gson.fromJson(entry.getValue().toString(), String.class);
-            rec_list.add(day_rec);
+        if(complete_plan_cnt != 0){
+            progress = ((double)complete_plan_cnt / (double)plan_cnt) * 100;
         }
 
-        length = rec_list.size()-1;
-        String[] temp = rec_list.get(length).split("/");
-        today_goal = Integer.parseInt(temp[0]) / Integer.parseInt(temp[1]);
-        */
+        progress_sp.edit().putString(today, Double.toString(progress)).apply(); // progress 저장
+    }
 
-        //star 처리 부분
-        if(star >= 0)
-        {
-            text1.append("헬린이");
-            text2.append("헬린이");
-            text3.append("헬린이");
-            text4.append("헬린이");
-        }
-        if(star >= 11 && star <= 30)
-        {
-            text1.append("헬스 보이/걸");
-            text2.append("헬스 보이/걸");
-            text3.append("헬스 보이/걸");
-            text4.append("헬스 보이/걸");
-        }
+    public void get_star(){
+        //star_sp.edit().clear().apply();
+        //modified.edit().clear().apply();
 
-        if(star >= 31 && star <= 50)
-        {
-            text1.append("몸짱");
-            text2.append("몸짱");
-            text3.append("몸짱");
-            text4.append("몸짱");
+        String exist = star_sp.getString("user", "");
+        if(exist.equals("")){
+            star_sp.edit().putString("user", "0").apply();
         }
-
-        //character 부분
-        if(today_goal == 0)
-        {
-            Level_1.setVisibility(View.VISIBLE);
-            text1.setVisibility(View.VISIBLE);
-            goal_text.append("시작이 반입니다!");
+        else{
+            star = Integer.parseInt(exist); // 별 개수 가져옴
         }
-        else if(today_goal >= 25 && today_goal <= 49)
-        {
-            Level_2.setVisibility(View.VISIBLE);
-            text2.setVisibility(View.VISIBLE);
-            goal_text.append("열심히 하고 계시군요 힘내세요!");
-        }
-        else if(today_goal >= 50 && today_goal <= 74)
-        {
-            Level_3.setVisibility(View.VISIBLE);
-            text3.setVisibility(View.VISIBLE);
-            goal_text.append("목표의 절반정도 도달했습니다.!");
-        }
-        else if(today_goal >= 75 && today_goal <= 99)
-        {
-            Level_4.setVisibility(View.VISIBLE);
-            text4.setVisibility(View.VISIBLE);
-            goal_text.append("최종 목표까지 얼마 안남았습니다!");
-        }
-        else if(today_goal == 100)
-        {
-            goal_text.append("열심히 응원하던 거북이는 쉬러 갔습니다!");
-        }
-
-        //star를 기록하는 부분이 필요
-
-
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }

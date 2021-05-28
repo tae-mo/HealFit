@@ -34,9 +34,11 @@ import java.util.Map;
 
 public class RecordActivity extends AppCompatActivity {
     Gson gson;
+
     ArrayList<Rec> rec_list;
     ArrayList<Rec> plan_list;
     ArrayList<Rec> log_list;
+    ArrayList<String> over_ten_workout;
 
     SharedPreferences plan_sp, plan_cnt_sp, log_sp;
 
@@ -73,6 +75,7 @@ public class RecordActivity extends AppCompatActivity {
         today = dateFormat.format(d);
 
         gson = new GsonBuilder().create();
+        over_ten_workout = new ArrayList<>();
         /***********************************LOG 불러오기*************************************/
         load_log();
 
@@ -119,7 +122,7 @@ public class RecordActivity extends AppCompatActivity {
         }
         Collections.sort(rec_list);
 
-        modify_list(rec_list, rec_row, rec_table, 20);
+        modify_list(rec_list, rec_row, rec_table, 18);
     }
     public void load_plan(){
         plan_list = new ArrayList<>();
@@ -147,7 +150,7 @@ public class RecordActivity extends AppCompatActivity {
             }
         }
 
-        modify_list(plan_list, plan_row, plan_table, 20);
+        modify_list(plan_list, plan_row, plan_table, 18);
 
         editor.putString(today, complete_plan_cnt+ "/" + plan_cnt);
         editor.apply();
@@ -167,6 +170,7 @@ public class RecordActivity extends AppCompatActivity {
         return already;
     }
 
+    @SuppressLint("SetTextI18n")
     public void modify_list(ArrayList<Rec> arr_list, ArrayList<TableRow> arr_row, TableLayout table, int space){
         table.removeAllViews();
         arr_row.clear();
@@ -181,7 +185,7 @@ public class RecordActivity extends AppCompatActivity {
             TextView text = new TextView(this);
             text.setBackgroundResource(R.color.grey);
             text.setGravity(Gravity.CENTER);;
-            text.setText(String.format("%-20s", s));
+            text.setText(String.format("%-"+space+"s", s));
             tr.addView(text);
         }
         arr_row.add(tr);
@@ -200,15 +204,30 @@ public class RecordActivity extends AppCompatActivity {
             sets = new TextView(this);
             volume =  new TextView(this);
 
+            workout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    textClick(v);
+                }
+            });
+
             date.setBackgroundResource(R.color.white);
             workout.setBackgroundResource(R.color.white);
             sets.setBackgroundResource(R.color.white);
             volume.setBackgroundResource(R.color.white);
 
-            date.setText(String.format("%-15s", arr_list.get(i).getDate()));
-            workout.setText(String.format("%-15s", arr_list.get(i).getWorkout()));
-            sets.setText(String.format("%-15s", arr_list.get(i).getSets().toString() + " sets"));
-            volume.setText(String.format("%-15s", arr_list.get(i).getVolume().toString() + " kg"));
+            date.setText(String.format("%-"+space+"s", arr_list.get(i).getDate()));
+            if(arr_list.get(i).getWorkout().length() <= 10){
+                workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()));
+            }
+            else{
+                if(!over_ten_workout.contains(arr_list.get(i).getWorkout())){
+                    over_ten_workout.add(arr_list.get(i).getWorkout());
+                }
+                workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()).substring(0, 7) + "...");
+            }
+            sets.setText(String.format("%-"+space+"s", arr_list.get(i).getSets().toString() + " sets"));
+            volume.setText(String.format("%-"+space+"s", arr_list.get(i).getVolume().toString() + " kg"));
 
             tr.addView(date);
             tr.addView(workout);
@@ -222,6 +241,19 @@ public class RecordActivity extends AppCompatActivity {
             table.addView(recorded);
         }
     }
+    public void textClick(View v){
+        TextView clicked_view = (TextView)v;
+        String text = clicked_view.getText().toString();
+
+        if(text.contains("...")){
+            for(String entry : over_ten_workout){
+                if(entry.contains(text.replace("...", ""))){
+                    Toast show_text = Toast.makeText(this, entry, Toast.LENGTH_SHORT);
+                    show_text.show();
+                }
+            }
+        }
+    }
     public void display_logs(View view){
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.log_dialog, null);
@@ -230,9 +262,10 @@ public class RecordActivity extends AppCompatActivity {
 
         builder.setTitle("Workout Logs");
         builder.setView(dialogView);
+
         TableLayout log_table = dialogView.findViewById(R.id.log_table);
         log_table.setGravity(Gravity.CENTER);
-        modify_list(log_list, log_row, log_table, 8);
+        modify_list(log_list, log_row, log_table, 17);
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -278,7 +311,8 @@ public class RecordActivity extends AppCompatActivity {
                         editor.putString(today, complete_plan_cnt+ "/" + plan_cnt);
                         editor.apply();
                     }
-                    modify_list(plan_list, plan_row, plan_table, 20);
+                    modify_list(plan_list, plan_row, plan_table, 18);
+                    save_plan();
                 }
             }
         });
@@ -286,8 +320,7 @@ public class RecordActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-    public void save_state(){
+    public void save_plan(){
         plan_sp.edit().clear().apply();
         SharedPreferences.Editor editor_plan = plan_sp.edit();
 
@@ -295,7 +328,8 @@ public class RecordActivity extends AppCompatActivity {
             editor_plan.putString(today+plan_item.getWorkout(), gson.toJson(plan_item, Rec.class));
         }
         editor_plan.apply();
-
+    }
+    public void save_log(){
         log_sp.edit().clear().apply();
         SharedPreferences.Editor editor_log = log_sp.edit();
 
@@ -303,6 +337,10 @@ public class RecordActivity extends AppCompatActivity {
             editor_log.putString(today+log_item.getWorkout(), gson.toJson(log_item, Rec.class));
         }
         editor_log.apply();
+    }
+    public void save_state(){
+        save_plan();
+        save_log();
     }
     @Override
     protected void onStop() {

@@ -1,65 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_blue"
-    tools:context=".TimerActivity">
-
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textSize="15sp"
-        android:textColor="@color/white"
-        android:paddingTop="30dp"
-        />
-
-
-    <TextView
-        android:id="@+id/timer_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="타이머를 설정해주세요"
-        android:textColor="@color/white"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:paddingTop="10dp"
-        />
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="00:00:00"
-        android:textColor="@color/white"
-        android:textAlignment="center"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        />
-
-    <Button
-        android:id="@+id/start_btn"
-        android:layout_width="100dp"
-        android:layout_height="55dp"
-        android:layout_gravity="center"
-        android:backgroundTint="@color/yellow"
-        android:clickable="true"
-        android:onClick="start_pause"
-        android:text="Start"
-        android:textSize="15sp"
-        style="@style/circle_btn"
-        android:textColor="@color/dark_blue" />
-
+    tools:context=".TimerActivity"
+    >
     <LinearLayout
+        android:id="@+id/timer_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         >
 
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="날 짜"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:paddingTop="30dp"
+            />
+
+
+        <TextView
+            android:id="@+id/timer_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="타이머를 설정해주세요"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="00:00:00"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:textSize="50sp"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/start_btn"
+            android:layout_width="100dp"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/yellow"
+            android:clickable="true"
+            android:onClick="start_pause"
+            android:text="Start"
+            android:textSize="15sp"
+            style="@style/circle_btn"
+            android:textColor="@color/dark_blue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timer_layout">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,14 +90,12 @@
             android:layout_height="50dp"
             android:gravity="center"
             android:orientation="horizontal">
-
             <ImageButton
                 android:id="@+id/decrease_set"
                 android:layout_width="30dp"
                 android:layout_height="40dp"
                 app:srcCompat="@android:drawable/arrow_down_float"
                 android:onClick="control_time"/>
-
             <TextView
                 android:id="@+id/set_time"
                 android:layout_width="wrap_content"
@@ -94,14 +108,12 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textSize="20sp" />
-
             <ImageButton
                 android:id="@+id/increase_set"
                 android:layout_width="30dp"
                 android:layout_height="40dp"
                 app:srcCompat="@android:drawable/arrow_up_float"
                 android:onClick="control_time"/>
-
         </LinearLayout>
 
         <TextView
@@ -118,15 +130,12 @@
             android:layout_height="50dp"
             android:orientation="horizontal"
             android:gravity="center">
-
-
             <ImageButton
                 android:id="@+id/decrease_rest"
                 android:layout_width="30dp"
                 android:layout_height="40dp"
                 app:srcCompat="@android:drawable/arrow_down_float"
                 android:onClick="control_time" />
-
             <TextView
                 android:id="@+id/rest_time"
                 android:text="0"
@@ -140,7 +149,6 @@
                 android:paddingRight="10dp"
                 android:layout_gravity="center"
                 />
-
             <ImageButton
                 android:id="@+id/increase_rest"
                 android:layout_width="30dp"
@@ -193,7 +201,6 @@
                 android:onClick="control_set"
                 app:srcCompat="@android:drawable/arrow_up_float" />
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -278,7 +285,6 @@
                     android:text="None"
                     android:textAlignment="center"
                     android:textSize="20sp"
-
                     />
             </LinearLayout>
             <LinearLayout
@@ -302,10 +308,8 @@
                     android:text="0 set"
                     android:textAlignment="center"
                     android:textSize="20sp"
-
                     />
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="110dp"
                 android:layout_height="wrap_content"
@@ -327,13 +331,11 @@
                     android:text="0 kg"
                     android:textAlignment="center"
                     android:textSize="20sp"
-
                     />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
-
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 
 

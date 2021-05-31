@@ -22,7 +22,7 @@ public class ProgressActivity extends AppCompatActivity {
     int complete_plan_cnt = 0, plan_cnt = 0;
     double progress = 0;
     String[] nickname = {"헬린이", "헬스 보이/걸", "몸짱"};
-    String[] msg = {"시작이 반입니다!", "열심히 하고 계시군요!", "절반정도 왔어요!", "좀만 더 힘내세요!", "목표 달성!"};
+    String[] msg = {"시작이 반입니다!", "노력하고 계시군요!", "절반정도 왔어요!", "좀만 더 힘내세요!", "목표 달성!"};
 
     SharedPreferences plan_cnt_sp, progress_sp, star_sp, modified;
 
@@ -102,18 +102,26 @@ public class ProgressActivity extends AppCompatActivity {
     }
 
     public void set_message(){
+        boolean already = modified.getBoolean(today, false);
         //character 부분
+        if(progress < 100 && already){
+            star--;
+            star_sp.edit().putString("user", star.toString()).apply();
+            modified.edit().putBoolean(today, false).apply();
+        }
+
         if(progress >= 0 && progress < 25)
         {
             turtle_list.get(0).setVisibility(View.VISIBLE);
             message.setText(msg[0]);
+
         }
-        else if(progress >= 25 && progress < 51)
+        else if(progress >= 25 && progress < 50)
         {
             turtle_list.get(1).setVisibility(View.VISIBLE);
             message.setText(msg[1]);
         }
-        else if(progress >= 50 && progress < 76)
+        else if(progress >= 50 && progress < 75)
         {
             turtle_list.get(2).setVisibility(View.VISIBLE);
             message.setText(msg[2]);
@@ -125,7 +133,6 @@ public class ProgressActivity extends AppCompatActivity {
         }
         else if(progress >= 100)
         {
-            boolean already = modified.getBoolean(today, false);
             if(!already) {
                 star++;
                 star_sp.edit().putString("user", star.toString()).apply();

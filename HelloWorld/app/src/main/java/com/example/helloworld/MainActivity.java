@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
-        SharedPreferences sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9;
+/*
+        SharedPreferences sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10;
         sp1 = getSharedPreferences("RecCal", MODE_PRIVATE);
         sp2 = getSharedPreferences("RecFile", MODE_PRIVATE);
         sp3 = getSharedPreferences("RecKcal", MODE_PRIVATE);
@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         sp7= getSharedPreferences("RecProgress", MODE_PRIVATE);
         sp8 = getSharedPreferences("RecStar", MODE_PRIVATE);
         sp9 = getSharedPreferences("TimerRemoved", MODE_PRIVATE);
+        sp10 = getSharedPreferences("Modified", MODE_PRIVATE);
 
 
         sp1.edit().clear().apply();
@@ -38,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         sp7.edit().clear().apply();
         sp8.edit().clear().apply();
         sp9.edit().clear().apply();
-        */
+        sp10.edit().clear().apply();
+*/
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -15,6 +16,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
@@ -88,6 +90,24 @@ public class TimerActivity extends AppCompatActivity {
         input_workout = findViewById(R.id.input_workout);
         input_weight = findViewById(R.id.input_weight);
 
+        input_workout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
+        input_weight.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
@@ -96,6 +116,10 @@ public class TimerActivity extends AppCompatActivity {
         date.setText(today);
     }
 
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
     public void ask_reps(){
         NumberPicker reps = new NumberPicker(this);
@@ -388,45 +412,51 @@ public class TimerActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     public void save_workout(){
-        Rec.setVolume(volume);
-        Rec.setDate(today);
-        Rec.setWorkout(workout);
-        Rec.setSets(count);
-
-        String rec_obj;
-
-        SharedPreferences sharedPreferences = getSharedPreferences("RecFile", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String exist = sharedPreferences.getString(today+workout, "");
-
-        if(exist.equals("")){
-            rec_obj =  gson.toJson(Rec, Rec.class);
-
-            did_workout.setText(Rec.getWorkout());
-            set_cnt.setText(Rec.getSets().toString() + " set");
-            vol_cnt.setText(Rec.getVolume().toString() + " kg");
+        if(volume == 0){
+            Toast no_volume = Toast.makeText(this.getApplicationContext(), "수행하지 않은 운동은 저장할 수 없습니다", Toast.LENGTH_SHORT);
+            no_volume.show();
         }
         else{
-            Rec prevRec = gson.fromJson(exist, Rec.class);
+            Rec.setVolume(volume);
+            Rec.setDate(today);
+            Rec.setWorkout(workout);
+            Rec.setSets(count);
 
-            did_workout.setText(prevRec.getWorkout());
-            set_cnt.setText(prevRec.getSets().toString() + "+" + count + " set");
-            vol_cnt.setText(prevRec.getVolume().toString() + "+" + volume + " kg");
+            String rec_obj;
 
-            prevRec.sets += count;
-            prevRec.volume += volume;
+            SharedPreferences sharedPreferences = getSharedPreferences("RecFile", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            String exist = sharedPreferences.getString(today+workout, "");
 
-            rec_obj = gson.toJson(prevRec, Rec.class);
+            if(exist.equals("")){
+                rec_obj =  gson.toJson(Rec, Rec.class);
+
+                did_workout.setText(Rec.getWorkout());
+                set_cnt.setText(Rec.getSets().toString() + " set");
+                vol_cnt.setText(Rec.getVolume().toString() + " kg");
+            }
+            else{
+                Rec prevRec = gson.fromJson(exist, Rec.class);
+
+                did_workout.setText(prevRec.getWorkout());
+                set_cnt.setText(prevRec.getSets().toString() + "+" + count + " set");
+                vol_cnt.setText(prevRec.getVolume().toString() + "+" + volume + " kg");
+
+                prevRec.sets += count;
+                prevRec.volume += volume;
+
+                rec_obj = gson.toJson(prevRec, Rec.class);
+            }
+            editor.putString(today+workout, rec_obj);
+            editor.apply();
+
+            volume = 0;
+            workout = "";
+            count = 0;
+            weight = 0;
+
+            check_plan(gson.fromJson(rec_obj, Rec.class));
         }
-        editor.putString(today+workout, rec_obj);
-        editor.apply();
-
-        volume = 0;
-        workout = "";
-        count = 0;
-        weight = 0;
-
-        check_plan(gson.fromJson(rec_obj, Rec.class));
     }
 
     public void check_plan(Rec Rec){

@@ -208,7 +208,7 @@ public class CalendarActivity extends AppCompatActivity {
         }
         kcal_sp.edit().putString(today, ((Double)save_kcal).toString()).apply();
     }
-    public void calculate_progress(){
+    public void calculate_progress(){   // record에서 바로 넘어온 경우 고려
         SharedPreferences plan_cnt_sp = getSharedPreferences("RecPlanCnt", MODE_PRIVATE);
         SharedPreferences progress_sp = getSharedPreferences("RecProgress", MODE_PRIVATE);
         String exist = plan_cnt_sp.getString(today,"");

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_blue"
+    android:scrollbars="vertical"
     tools:context=".TimerActivity"
-    >
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
     <LinearLayout
         android:id="@+id/timer_layout"
         android:layout_width="match_parent"
@@ -17,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/set_layout"
         >
 
         <TextView
@@ -27,7 +32,6 @@
             android:text="날 짜"
             android:textSize="15sp"
             android:textColor="@color/white"
-            android:paddingTop="30dp"
             />
 
 
@@ -66,25 +70,24 @@
             style="@style/circle_btn"
             android:textColor="@color/dark_blue" />
     </LinearLayout>
-
     <LinearLayout
+        android:id="@+id/set_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center"
 
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/timer_layout">
+        app:layout_constraintTop_toBottomOf="@id/timer_layout"
+        app:layout_constraintBottom_toTopOf="@id/rest_layout">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="세트 진행 시간 (초)"
+            android:text="세트 시간"
             android:textColor="@color/white"
             android:textAlignment="center"
             android:textSize="20sp" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -96,17 +99,18 @@
                 android:layout_height="40dp"
                 app:srcCompat="@android:drawable/arrow_down_float"
                 android:onClick="control_time"/>
+
             <TextView
                 android:id="@+id/set_time"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:text="0"
-                android:textColor="@color/white"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="20sp" />
             <ImageButton
                 android:id="@+id/increase_set"
@@ -115,11 +119,24 @@
                 app:srcCompat="@android:drawable/arrow_up_float"
                 android:onClick="control_time"/>
         </LinearLayout>
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/rest_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/set_layout"
+        app:layout_constraintBottom_toTopOf="@id/cnt_layout">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="휴식 시간 (초)"
+            android:text="휴식 시간"
             android:textColor="@color/white"
             android:textAlignment="center"
             android:textSize="20sp"
@@ -136,19 +153,19 @@
                 android:layout_height="40dp"
                 app:srcCompat="@android:drawable/arrow_down_float"
                 android:onClick="control_time" />
+
             <TextView
                 android:id="@+id/rest_time"
-                android:text="0"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_gravity="center"
-                />
+                android:text="0"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
             <ImageButton
                 android:id="@+id/increase_rest"
                 android:layout_width="30dp"
@@ -156,7 +173,19 @@
                 android:onClick="control_time"
                 app:srcCompat="@android:drawable/arrow_up_float" />
         </LinearLayout>
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/cnt_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rest_layout"
+        app:layout_constraintBottom_toTopOf="@id/input_layout"
+        >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -171,8 +200,6 @@
             android:layout_height="50dp"
             android:orientation="horizontal"
             android:gravity="center">
-
-
             <ImageButton
                 android:id="@+id/decrease_num"
                 android:layout_width="30dp"
@@ -182,17 +209,16 @@
 
             <TextView
                 android:id="@+id/set_num"
-                android:text="0"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:gravity="center"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_gravity="center"
-                />
+                android:text="0"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
 
             <ImageButton
                 android:id="@+id/increase_num"
@@ -201,138 +227,154 @@
                 android:onClick="control_set"
                 app:srcCompat="@android:drawable/arrow_up_float" />
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingTop="15dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="120dp"
-                android:layout_height="match_parent"
-                android:gravity="top"
-                android:paddingRight="20dp"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="어떤 운동"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:layout_gravity="center"
-                    android:gravity="center"/>
+    </LinearLayout>
 
-                <EditText
-                    android:id="@+id/input_workout"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/white"
-                    android:inputType="text"
-                    android:gravity="center" />
-            </LinearLayout>
-            <LinearLayout
+    <LinearLayout
+        android:id="@+id/input_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+
+        app:layout_constraintTop_toBottomOf="@id/cnt_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/info_layout">
+        <LinearLayout
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:paddingRight="20dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="어떤 운동"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:gravity="center"/>
+
+            <EditText
+                android:id="@+id/input_workout"
                 android:layout_width="120dp"
-                android:layout_height="match_parent"
-                android:gravity="top"
-                android:paddingLeft="20dp"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="무 게"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:layout_gravity="center"
-                    android:gravity="center"/>
-                <EditText
-                    android:id="@+id/input_weight"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/white"
-                    android:inputType="numberDecimal"
-                    android:layout_gravity="center"
-                    android:gravity="center"/>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/white"
+                android:inputType="text"
+                android:gravity="center"
+                android:selectAllOnFocus="true"
+                />
         </LinearLayout>
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="120dp"
             android:layout_height="match_parent"
-            android:paddingTop="20dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            >
-            <LinearLayout
-                android:layout_width="110dp"
+            android:gravity="top"
+            android:paddingLeft="20dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="완료 운동"
-                    android:textColor="@color/white"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-                <TextView
-                    android:id="@+id/did_workout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:paddingTop="10dp"
-                    android:text="None"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="110dp"
+                android:text="무 게"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:gravity="center"/>
+            <EditText
+                android:id="@+id/input_weight"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="완료 세트"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-                <TextView
-                    android:id="@+id/set_cnt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:paddingTop="10dp"
-                    android:text="0 set"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="110dp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/white"
+                android:inputType="numberDecimal"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:selectAllOnFocus="true"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/info_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+        <LinearLayout
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="볼 륨"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-                <TextView
-                    android:id="@+id/vol_cnt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:paddingTop="10dp"
-                    android:text="0 kg"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
-                    />
-            </LinearLayout>
+                android:text="완료 운동"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/did_workout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:paddingTop="10dp"
+                android:text="None"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="완료 세트"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                />
+            <TextView
+                android:id="@+id/set_cnt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:paddingTop="10dp"
+                android:text="0 set"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="볼 륨"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                />
+            <TextView
+                android:id="@+id/vol_cnt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:paddingTop="10dp"
+                android:text="0 kg"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

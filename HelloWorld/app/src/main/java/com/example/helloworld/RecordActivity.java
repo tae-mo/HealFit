@@ -204,10 +204,10 @@ public class RecordActivity extends AppCompatActivity {
             sets = new TextView(this);
             volume =  new TextView(this);
 
-            workout.setOnClickListener(new View.OnClickListener() {
+            workout.setOnClickListener(new View.OnClickListener() {     // WorkOut을 나타내는 TextView에만 클릭 리스너 등록
                 @Override
                 public void onClick(View v) {
-                    textClick(v);
+                    textClick(v);       // 클릭 리스너는 textClick이라는 함수를 호출함
                 }
             });
 
@@ -217,14 +217,14 @@ public class RecordActivity extends AppCompatActivity {
             volume.setBackgroundResource(R.color.white);
 
             date.setText(String.format("%-"+space+"s", arr_list.get(i).getDate()));
-            if(arr_list.get(i).getWorkout().length() <= 10){
+            if(arr_list.get(i).getWorkout().length() <= 10){    // 문자열의 길이가 10 이하인 경우
                 workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()));
             }
-            else{
-                if(!over_ten_workout.contains(arr_list.get(i).getWorkout())){
+            else{   // 문자열의 길이가 10을 초과하는 경우
+                if(!over_ten_workout.contains(arr_list.get(i).getWorkout())){   // over_ten_workout이라는 ArrayList에 길이가 10 초과인 문자열을 넣음 (이미 존재하면 안넣음)
                     over_ten_workout.add(arr_list.get(i).getWorkout());
                 }
-                workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()).substring(0, 7) + "...");
+                workout.setText(String.format("%-"+space+"s", arr_list.get(i).getWorkout()).substring(0, 7) + "...");   // 문자열의 인덱스 0~6까지 출력후, 뒤에 "..."를 붙임
             }
             sets.setText(String.format("%-"+space+"s", arr_list.get(i).getSets().toString() + " sets"));
             volume.setText(String.format("%-"+space+"s", arr_list.get(i).getVolume().toString() + " kg"));
@@ -241,7 +241,7 @@ public class RecordActivity extends AppCompatActivity {
             table.addView(recorded);
         }
     }
-    public void textClick(View v){
+    public void textClick(View v){      // textClick에서는 클릭된 TextView에 "..."이 포함된 경우, over_ten_workout에서 "..."부분이 제외된 부분을 포함하는 string을 찾아 토스트 출력
         TextView clicked_view = (TextView)v;
         String text = clicked_view.getText().toString();
 

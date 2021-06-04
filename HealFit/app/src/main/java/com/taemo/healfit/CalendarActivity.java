@@ -71,6 +71,8 @@ public class CalendarActivity extends AppCompatActivity {
         progress = findViewById(R.id.progress);
 
         enter_weight = findViewById(R.id.enter_weight);
+        enter_weight.setEnabled(false);
+        enter_weight.setText("PICK DATE");
 
         calculate_progress();
 
@@ -78,6 +80,9 @@ public class CalendarActivity extends AppCompatActivity {
             @SuppressLint({"DefaultLocale", "SetTextI18n"})
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                enter_weight.setEnabled(true);
+                enter_weight.setText("ENTER WEIGHT");
+
                 // Setting Date Text
                 String temp_month = ""+(++month);
                 String temp_year = ""+year;
@@ -148,6 +153,7 @@ public class CalendarActivity extends AppCompatActivity {
                 if(send_weight == 0){ // 오늘 체중 입력 안한 경우
                     Toast no_weight = Toast.makeText(context, "체중값이 없으면 칼로리를 계산할 수 없습니다", Toast.LENGTH_SHORT);
                     no_weight.show();
+                    kcal.setText("0 kcal");
                 }
                 else{   // 체중 입력 돼있는 경우
                     save_kcal = calc_kcal(send_weight, total_set);

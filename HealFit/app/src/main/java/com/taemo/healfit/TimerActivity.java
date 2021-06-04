@@ -18,7 +18,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class TimerActivity extends AppCompatActivity {
-    static final String SET_COUNT = "SET_COUNT";
+    static final String HAS_CALLBACK = "HAS_CALLBACK";
     final Context context = this;
+
+    boolean has_callback = false;
 
     Gson gson;
 
@@ -114,6 +115,7 @@ public class TimerActivity extends AppCompatActivity {
         Date d = new Date();
         today = dateFormat.format(d);
         date.setText(today);
+
     }
 
     public void hideKeyboard(View view) {
@@ -159,13 +161,14 @@ public class TimerActivity extends AppCompatActivity {
                 String[] hms_str = ((String) time.getText()).split(":");
                 int[] hms = {0, 0, 0};
 
-                for (int i = 0; i < hms_str.length; i++) {//hms를 hms_str에 넣어줌
+                for (int i = 0; i < hms_str.length; i++) {  // hms를 hms_str에 넣어줌
                     hms[i] = Integer.parseInt(hms_str[i]);
                 }
 
-                int new_s = 0, new_m = 0, new_h = 0;
-                new_s = hms[2] - 1;//초 단위
-                if (new_s == -1) { //
+                int new_s = hms[2], new_m = hms[1], new_h = hms[0];
+
+                new_s -= 1;         // 초 단위
+                if (new_s == -1) {
                     new_s = 59;
                     new_m = hms[1] - 1;
                     if (new_m == -1) {
@@ -238,7 +241,7 @@ public class TimerActivity extends AppCompatActivity {
                 ask_body_weight();
             }
             else {//타이머 준비
-                Init2Run();
+                run_timer();
             }
         }
         else if(status == RUN) {
@@ -265,7 +268,7 @@ public class TimerActivity extends AppCompatActivity {
                 if(!exist.equals("") && !exist.equals("0")){
                     weight = Integer.parseInt(exist);
                     input_weight.setText(weight.toString());
-                    Init2Run();
+                    run_timer();
                 }
                 else{
                     Toast no_bodyweight = Toast.makeText(context, "금일 체중이 입력되지 않았습니다.", Toast.LENGTH_SHORT);
@@ -287,7 +290,7 @@ public class TimerActivity extends AppCompatActivity {
                             if(!value.toString().equals("") && !value.toString().equals("0")){
                                 input_weight.setText(value.toString());
                                 cal_sp.edit().putString(today, value.toString()).apply();
-                                Init2Run();
+                                run_timer();
                             }
                             else{
                                 Toast zero_weight = Toast.makeText(context, "체중은 0이 될 수 없습니다.", Toast.LENGTH_SHORT);
@@ -310,7 +313,7 @@ public class TimerActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-    private void Init2Run(){
+    private void run_timer(){
         status = RUN;
         start.setText("Pause");
 
@@ -456,13 +459,12 @@ public class TimerActivity extends AppCompatActivity {
             editor.putString(today+workout, rec_obj);
             editor.apply();
 
-            volume = 0;
-            workout = "";
-            count = 0;
-            weight = 0;
-
             check_plan(gson.fromJson(rec_obj, Rec.class));
         }
+        volume = 0;
+        workout = "";
+        count = 0;
+        weight = 0;
     }
 
     public void check_plan(Rec Rec){
@@ -484,8 +486,14 @@ public class TimerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        //handler.removeCallbacks(runnable);
+        if(status == PAUSE){
+            status = RUN;
 
+            Toast pause_cancelled = Toast.makeText(this.getApplicationContext(), "일시정지는 유지되지 않습니다", Toast.LENGTH_SHORT);
+            pause_cancelled.show();
+        }
+
+        time.setText("00:00:00");
         user_def_num = 0;
         user_def_rest = 0;
         user_def_set = 0;
@@ -523,13 +531,13 @@ public class TimerActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        count = savedInstanceState.getInt(SET_COUNT);
-        set_cnt.setText(""+count);
+        has_callback = savedInstanceState.getBoolean(HAS_CALLBACK);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putInt(SET_COUNT, count);
+        outState.putBoolean(HAS_CALLBACK, handler.hasCallbacks(runnable));
         super.onSaveInstanceState(outState);
     }
 }
